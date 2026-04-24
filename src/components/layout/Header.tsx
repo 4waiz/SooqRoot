@@ -10,11 +10,22 @@ import {
   Settings2,
   Sparkles,
   RotateCcw,
+  KeyRound,
 } from 'lucide-react';
 import { useApp } from '../../context/useApp';
 import { useTranslation } from '../../i18n/useTranslation';
 import { Page, Role } from '../../types';
 import { Badge } from '../ui/Badge';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
+import { Modal } from '../ui/Modal';
+import {
+  clearGroqApiKey,
+  getGroqApiKey,
+  getGroqModel,
+  getStoredGroqApiKey,
+  saveGroqApiKey,
+} from '../../lib/groq';
 
 const NAV_PAGES: { key: Page; labelKey: Parameters<ReturnType<typeof useTranslation>['t']>[0] }[] = [
   { key: 'landing', labelKey: 'nav_landing' },
@@ -32,6 +43,11 @@ export function Header() {
     useApp();
   const { t } = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [storedKey, setStoredKey] = useState(() => getStoredGroqApiKey());
+  const [keyDraft, setKeyDraft] = useState(() => getStoredGroqApiKey());
+  const groqReady = Boolean(getGroqApiKey());
+  const hasEnvKey = Boolean(import.meta.env.VITE_GROQ_API_KEY);
   // Logo: dark-text logo on light bg, light-text logo on dark bg.
   const logoSrc = theme === 'dark' ? '/lightlogo.png' : '/darklogo.png';
 
@@ -127,6 +143,20 @@ export function Header() {
           </button>
 
           <button
+            className={`sr-btn-ghost !px-3 !py-2 ${groqReady ? 'text-brand-700 dark:text-brand-200' : ''}`}
+            onClick={() => {
+              setKeyDraft(getStoredGroqApiKey());
+              setAiOpen(true);
+            }}
+            title={language === 'ar' ? 'Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Groq AI' : 'Groq AI settings'}
+          >
+            <KeyRound size={16} />
+            <span className="hidden md:inline text-sm font-semibold">
+              {groqReady ? 'Groq' : 'AI'}
+            </span>
+          </button>
+
+          <button
             className="lg:hidden sr-btn-ghost !px-3 !py-2"
             onClick={() => setMenuOpen((o) => !o)}
             aria-label="Menu"
@@ -187,6 +217,83 @@ export function Header() {
           </div>
         </div>
       ) : null}
+
+      <Modal
+        open={aiOpen}
+        onClose={() => setAiOpen(false)}
+        title={language === 'ar' ? 'Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Groq AI' : 'Groq AI settings'}
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                clearGroqApiKey();
+                setStoredKey('');
+                setKeyDraft('');
+              }}
+            >
+              {language === 'ar' ? 'Ù…Ø³Ø­' : 'Clear'}
+            </Button>
+            <Button
+              onClick={() => {
+                saveGroqApiKey(keyDraft);
+                setStoredKey(keyDraft.trim());
+                setAiOpen(false);
+              }}
+              icon={<KeyRound size={16} />}
+            >
+              {language === 'ar' ? 'Ø­ÙØ¸ Ø§Ù„Ù…ÙØªØ§Ø­' : 'Save key'}
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <Input
+            type="password"
+            label={language === 'ar' ? 'Groq API key' : 'Groq API key'}
+            value={keyDraft}
+            onChange={(e) => setKeyDraft(e.target.value)}
+            placeholder="gsk_..."
+            autoComplete="off"
+          />
+          <div className="rounded-xl border border-amber-200 dark:border-amber-900/40 bg-amber-50 dark:bg-amber-900/20 p-3 text-sm text-charcoal-700 dark:text-charcoal-100">
+            {language === 'ar'
+              ? 'Ù„Ù„Ø¯ÙŠÙ…Ùˆ ÙÙ‚Ø·: Ø§Ù„Ù…ÙØªØ§Ø­ Ø§Ù„Ù…Ø­ÙÙˆØ¸ ÙÙŠ Ø§Ù„Ù…ØªØµÙØ­ ÙŠÙƒÙˆÙ† Ù…Ø±Ø¦ÙŠØ§Ù‹ Ù„Ù…Ø³ØªØ®Ø¯Ù… Ø§Ù„Ø¬Ù‡Ø§Ø². Ù„Ù„Ø¥Ù†ØªØ§Ø¬ Ø§Ø³ØªØ®Ø¯Ù… Backend proxy.'
+              : 'Demo only: a key saved in the browser is visible to this device user. For production, use a backend proxy.'}
+          </div>
+          <div className="text-xs text-charcoal-500 dark:text-charcoal-300 space-y-1">
+            <div>
+              {language === 'ar' ? 'Ø§Ù„Ø­Ø§Ù„Ø©' : 'Status'}:{' '}
+              <span className="font-semibold">
+                {groqReady
+                  ? language === 'ar'
+                    ? 'Groq Ù…ÙØ¹Ù‘Ù„'
+                    : 'Groq enabled'
+                  : language === 'ar'
+                  ? 'Ø§Ù„ÙˆØ¶Ø¹ Ø§Ù„Ù…Ø­Ù„ÙŠ'
+                  : 'Local fallback mode'}
+              </span>
+            </div>
+            <div>
+              {language === 'ar' ? 'Ø§Ù„Ù…ÙˆØ¯ÙŠÙ„' : 'Model'}: {getGroqModel()}
+            </div>
+            {hasEnvKey ? (
+              <div>
+                {language === 'ar'
+                  ? 'ÙŠÙˆØ¬Ø¯ Ù…ÙØªØ§Ø­ VITE_GROQ_API_KEY ÙÙŠ Ø§Ù„Ø¨ÙŠØ¦Ø©.'
+                  : 'VITE_GROQ_API_KEY is configured in the environment.'}
+              </div>
+            ) : null}
+            {storedKey ? (
+              <div>
+                {language === 'ar'
+                  ? 'ÙŠÙˆØ¬Ø¯ Ù…ÙØªØ§Ø­ Ù…Ø­ÙÙˆØ¸ ÙÙŠ Ø§Ù„Ù…ØªØµÙØ­.'
+                  : 'A browser-saved key is present.'}
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </Modal>
     </header>
   );
 }

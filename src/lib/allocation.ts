@@ -8,7 +8,12 @@ import {
   Farm,
   FarmSupply,
 } from '../types';
-import { calculateFulfillmentRisk, suggestSubstitutes } from './ai';
+import {
+  calculateFulfillmentRisk,
+  calculateFulfillmentRiskWithAI,
+  suggestSubstitutes,
+  suggestSubstitutesWithAI,
+} from './ai';
 
 const CONFIDENCE_RANK: Record<Confidence, number> = {
   Confirmed: 3,
@@ -128,6 +133,30 @@ export function runAllocation(
   };
   allocation.risk = calculateFulfillmentRisk(allocation, farms);
   return allocation;
+}
+
+export async function runAllocationWithAI(
+  demand: Demand,
+  farms: Farm[],
+  buyers: Buyer[]
+): Promise<Allocation> {
+  const allocation = runAllocation(demand, farms, buyers);
+
+  const lines = await Promise.all(
+    allocation.lines.map(async (line) => {
+      if (line.shortfall <= 0) return line;
+      return {
+        ...line,
+        substitutes: await suggestSubstitutesWithAI(line.product, farms),
+      };
+    })
+  );
+
+  const enrichedAllocation = { ...allocation, lines };
+  return {
+    ...enrichedAllocation,
+    risk: await calculateFulfillmentRiskWithAI(enrichedAllocation, farms),
+  };
 }
 
 export function computeBuyerMetrics(

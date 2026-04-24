@@ -13,6 +13,7 @@ import {
   RiskScore,
   SubstituteSuggestion,
 } from '../types';
+import { callGroqJson, isGroqConfigured } from './groq';
 
 interface ProductDef {
   en: string;
@@ -147,6 +148,27 @@ export interface ParsedDemand {
   confidence: number;
 }
 
+interface GroqDemandLine {
+  product?: string;
+  productAr?: string;
+  qty?: number;
+  unit?: 'kg' | 'boxes' | 'jars';
+  grade?: Grade;
+  packaging?: string;
+  packagingAr?: string;
+  deliveryWindow?: string;
+  deliveryWindowAr?: string;
+  locationPref?: string;
+  locationPrefAr?: string;
+}
+
+interface GroqParsedDemand {
+  lines?: GroqDemandLine[];
+  interpretation?: string;
+  interpretationAr?: string;
+  confidence?: number;
+}
+
 export function parseDemandText(text: string, lang: Language): ParsedDemand {
   const normalized = text.toLowerCase();
   const lines: DemandLine[] = [];
@@ -262,6 +284,111 @@ export function parseDemandText(text: string, lang: Language): ParsedDemand {
   return { lines, interpretation, interpretationAr, confidence };
 }
 
+export async function parseDemandTextWithAI(text: string, lang: Language): Promise<ParsedDemand> {
+  const fallback = parseDemandText(text, lang);
+  if (!isGroqConfigured()) return fallback;
+
+  try {
+    const productCatalog = PRODUCTS.map((p) => ({
+      product: p.en,
+      productAr: p.ar,
+      category: p.category,
+      defaultUnit: p.unit,
+      defaultPackaging: p.defaultPackagingEn,
+      defaultPackagingAr: p.defaultPackagingAr,
+    }));
+
+    const result = await callGroqJson<GroqParsedDemand>(
+      [
+        {
+          role: 'system',
+          content:
+            'You convert UAE farm produce buyer requests into strict JSON. Return only JSON with keys: lines, interpretation, interpretationAr, confidence. Use only products from the provided catalog. If data is missing, infer reasonable UAE farm-market defaults. confidence must be 0 to 1.',
+        },
+        {
+          role: 'user',
+          content: JSON.stringify({
+            language: lang,
+            buyerRequest: text,
+            productCatalog,
+            lineSchema: {
+              product: 'English product name from catalog',
+              productAr: 'Arabic product name from catalog',
+              qty: 'number',
+              unit: 'kg | boxes | jars',
+              grade: 'A | B',
+              packaging: 'English packaging text',
+              packagingAr: 'Arabic packaging text',
+              deliveryWindow: 'English delivery window',
+              deliveryWindowAr: 'Arabic delivery window',
+              locationPref: 'optional English UAE location',
+              locationPrefAr: 'optional Arabic UAE location',
+            },
+          }),
+        },
+      ],
+      { temperature: 0.1, maxTokens: 1200 }
+    );
+
+    const lines = sanitizeGroqDemandLines(result.lines || []);
+    if (!lines.length) return fallback;
+
+    return {
+      lines,
+      interpretation: result.interpretation || fallback.interpretation,
+      interpretationAr: result.interpretationAr || fallback.interpretationAr,
+      confidence: clampConfidence(result.confidence, fallback.confidence),
+    };
+  } catch {
+    return fallback;
+  }
+}
+
+function sanitizeGroqDemandLines(lines: GroqDemandLine[]): DemandLine[] {
+  const now = Date.now();
+  return lines
+    .map((line, idx): DemandLine | null => {
+      const productDef = PRODUCTS.find(
+        (p) =>
+          p.en.toLowerCase() === String(line.product || '').toLowerCase() ||
+          p.ar === line.productAr
+      );
+      if (!productDef) return null;
+
+      const qty = Number(line.qty);
+      if (!Number.isFinite(qty) || qty <= 0) return null;
+
+      const unit =
+        line.unit === 'kg' || line.unit === 'boxes' || line.unit === 'jars'
+          ? line.unit
+          : productDef.unit;
+      const grade = line.grade === 'B' ? 'B' : 'A';
+
+      return {
+        id: `line-${now}-${idx}`,
+        product: productDef.en,
+        productAr: productDef.ar,
+        category: productDef.category,
+        qty: Math.round(qty),
+        unit,
+        grade,
+        packaging: line.packaging || productDef.defaultPackagingEn,
+        packagingAr: line.packagingAr || productDef.defaultPackagingAr,
+        deliveryWindow: line.deliveryWindow || 'This week',
+        deliveryWindowAr: line.deliveryWindowAr || 'Ù‡Ø°Ø§ Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹',
+        locationPref: line.locationPref,
+        locationPrefAr: line.locationPrefAr,
+      };
+    })
+    .filter((line): line is DemandLine => Boolean(line));
+}
+
+function clampConfidence(value: unknown, fallback: number): number {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(0, Math.min(1, n));
+}
+
 function escapeRx(s: string) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
@@ -272,6 +399,13 @@ export interface CopilotResponse {
   reasoning: string;
   suggestedAction: string;
   confidence: number;
+}
+
+interface GroqCopilotResponse {
+  text?: string;
+  reasoning?: string;
+  suggestedAction?: string;
+  confidence?: number;
 }
 
 export function generateFarmerAdvice(
@@ -343,6 +477,73 @@ export function generateFarmerAdvice(
       : 'Register supply now to lock in allocation.',
     confidence: 0.88,
   };
+}
+
+export async function generateFarmerAdviceWithAI(
+  input: string,
+  farm: Farm,
+  demands: Demand[],
+  lang: Language
+): Promise<CopilotResponse> {
+  const fallback = generateFarmerAdvice(input, farm, demands, lang);
+  if (!isGroqConfigured()) return fallback;
+
+  try {
+    const openDemand = demands
+      .filter((d) => d.status !== 'Delivered')
+      .flatMap((d) =>
+        d.lines.map((line) => ({
+          demandId: d.id,
+          status: d.status,
+          product: line.product,
+          productAr: line.productAr,
+          qty: line.qty,
+          unit: line.unit,
+          grade: line.grade,
+          packaging: line.packaging,
+          packagingAr: line.packagingAr,
+          deliveryWindow: line.deliveryWindow,
+          deliveryWindowAr: line.deliveryWindowAr,
+        }))
+      );
+
+    const result = await callGroqJson<GroqCopilotResponse>(
+      [
+        {
+          role: 'system',
+          content:
+            'You are SooqRoot farmer copilot for UAE farm-to-market coordination. Return only JSON with keys: text, reasoning, suggestedAction, confidence. Give practical advice about matching farm supply to open demand, pooling, grade, packaging, and harvest timing. Answer in Arabic when language is ar, otherwise English.',
+        },
+        {
+          role: 'user',
+          content: JSON.stringify({
+            language: lang,
+            farmerMessage: input,
+            farm: {
+              name: farm.name,
+              nameAr: farm.nameAr,
+              location: farm.location,
+              locationAr: farm.locationAr,
+              distanceKm: farm.distanceKm,
+              supplies: farm.supplies,
+              confidenceLevel: farm.confidenceLevel,
+            },
+            openDemand,
+          }),
+        },
+      ],
+      { temperature: 0.25, maxTokens: 800 }
+    );
+
+    return {
+      text: result.text || fallback.text,
+      reasoning: result.reasoning || fallback.reasoning,
+      suggestedAction: result.suggestedAction || fallback.suggestedAction,
+      confidence: clampConfidence(result.confidence, fallback.confidence),
+    };
+  } catch {
+    return fallback;
+  }
 }
 
 function unitAr(u: 'kg' | 'boxes' | 'jars') {
@@ -419,6 +620,68 @@ export function calculateFulfillmentRisk(allocation: Allocation, farms: Farm[]):
   };
 }
 
+export async function calculateFulfillmentRiskWithAI(
+  allocation: Allocation,
+  farms: Farm[]
+): Promise<RiskScore> {
+  const fallback = calculateFulfillmentRisk(allocation, farms);
+  if (!isGroqConfigured()) return fallback;
+
+  try {
+    const result = await callGroqJson<Partial<RiskScore>>(
+      [
+        {
+          role: 'system',
+          content:
+            'You score farm order fulfillment risk for SooqRoot. Return only JSON with keys: level, score, reasons, reasonsAr, mitigations, mitigationsAr. level must be Low, Medium, or High. score must be 0 to 100. Include concise English and Arabic arrays.',
+        },
+        {
+          role: 'user',
+          content: JSON.stringify({
+            allocation,
+            farms: farms.map((f) => ({
+              id: f.id,
+              name: f.name,
+              nameAr: f.nameAr,
+              location: f.location,
+              locationAr: f.locationAr,
+              distanceKm: f.distanceKm,
+              confidenceLevel: f.confidenceLevel,
+              supplies: f.supplies,
+            })),
+          }),
+        },
+      ],
+      { temperature: 0.15, maxTokens: 1000 }
+    );
+
+    const level =
+      result.level === 'High' || result.level === 'Medium' || result.level === 'Low'
+        ? result.level
+        : fallback.level;
+    const score = Math.round(Math.max(0, Math.min(100, Number(result.score))));
+
+    return {
+      level,
+      score: Number.isFinite(score) ? score : fallback.score,
+      reasons: sanitizeStringArray(result.reasons, fallback.reasons),
+      reasonsAr: sanitizeStringArray(result.reasonsAr, fallback.reasonsAr),
+      mitigations: sanitizeStringArray(result.mitigations, fallback.mitigations),
+      mitigationsAr: sanitizeStringArray(result.mitigationsAr, fallback.mitigationsAr),
+    };
+  } catch {
+    return fallback;
+  }
+}
+
+function sanitizeStringArray(value: unknown, fallback: string[]): string[] {
+  if (!Array.isArray(value)) return fallback;
+  const cleaned = value.filter(
+    (item): item is string => typeof item === 'string' && Boolean(item.trim())
+  );
+  return cleaned.length ? cleaned.slice(0, 5) : fallback;
+}
+
 // ---- Substitutes ----
 const SUBSTITUTE_MAP: Record<string, { product: string; productAr: string }[]> = {
   Lettuce: [
@@ -458,6 +721,77 @@ export function suggestSubstitutes(product: string, farms: Farm[]): SubstituteSu
     });
   }
   return suggestions;
+}
+
+export async function suggestSubstitutesWithAI(
+  product: string,
+  farms: Farm[]
+): Promise<SubstituteSuggestion[]> {
+  const fallback = suggestSubstitutes(product, farms);
+  if (!isGroqConfigured()) return fallback;
+
+  try {
+    const result = await callGroqJson<{ suggestions?: SubstituteSuggestion[] }>(
+      [
+        {
+          role: 'system',
+          content:
+            'You suggest substitute farm products for a UAE buyer order shortfall. Return only JSON with key suggestions. Each suggestion must include product, productAr, availableQty, reason, reasonAr, farmIds. Only use products and farm ids present in the farm data.',
+        },
+        {
+          role: 'user',
+          content: JSON.stringify({
+            shortfallProduct: product,
+            farms: farms.map((f) => ({
+              id: f.id,
+              name: f.name,
+              nameAr: f.nameAr,
+              supplies: f.supplies,
+            })),
+          }),
+        },
+      ],
+      { temperature: 0.2, maxTokens: 700 }
+    );
+
+    const suggestions = sanitizeSubstitutes(result.suggestions || [], farms);
+    return suggestions.length ? suggestions : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function sanitizeSubstitutes(
+  suggestions: SubstituteSuggestion[],
+  farms: Farm[]
+): SubstituteSuggestion[] {
+  const validFarmIds = new Set(farms.map((f) => f.id));
+  const availableByProduct = new Map<string, number>();
+  for (const farm of farms) {
+    for (const supply of farm.supplies) {
+      availableByProduct.set(
+        supply.product,
+        (availableByProduct.get(supply.product) || 0) + supply.qty
+      );
+    }
+  }
+
+  return suggestions
+    .map((suggestion) => {
+      const farmIds = (suggestion.farmIds || []).filter((id) => validFarmIds.has(id));
+      const availableQty = availableByProduct.get(suggestion.product) || Number(suggestion.availableQty);
+      if (!suggestion.product || !farmIds.length || !Number.isFinite(availableQty)) return null;
+      return {
+        product: suggestion.product,
+        productAr: suggestion.productAr || suggestion.product,
+        availableQty: Math.max(0, Math.round(availableQty)),
+        reason: suggestion.reason || 'Available from existing farm supply',
+        reasonAr: suggestion.reasonAr || suggestion.reason || 'Available from existing farm supply',
+        farmIds,
+      };
+    })
+    .filter((suggestion): suggestion is SubstituteSuggestion => Boolean(suggestion))
+    .slice(0, 3);
 }
 
 // ---- Harvest instructions ----

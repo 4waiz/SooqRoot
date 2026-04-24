@@ -5,7 +5,7 @@ import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { useApp } from '../../context/useApp';
 import { useTranslation } from '../../i18n/useTranslation';
-import { generateFarmerAdvice } from '../../lib/ai';
+import { generateFarmerAdviceWithAI } from '../../lib/ai';
 import { CopilotMessage, Farm } from '../../types';
 
 export function FarmerCopilot({ farm }: { farm: Farm }) {
@@ -15,7 +15,7 @@ export function FarmerCopilot({ farm }: { farm: Farm }) {
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);
 
-  const send = () => {
+  const send = async () => {
     if (!input.trim()) return;
     const userMsg: CopilotMessage = {
       id: `m-${Date.now()}`,
@@ -25,8 +25,8 @@ export function FarmerCopilot({ farm }: { farm: Farm }) {
     setMsgs((prev) => [...prev, userMsg]);
     setInput('');
     setThinking(true);
-    setTimeout(() => {
-      const r = generateFarmerAdvice(userMsg.text, farm, demands, language);
+    try {
+      const r = await generateFarmerAdviceWithAI(userMsg.text, farm, demands, language);
       const botMsg: CopilotMessage = {
         id: `m-${Date.now()}-b`,
         role: 'copilot',
@@ -36,8 +36,9 @@ export function FarmerCopilot({ farm }: { farm: Farm }) {
         confidence: r.confidence,
       };
       setMsgs((prev) => [...prev, botMsg]);
+    } finally {
       setThinking(false);
-    }, 600);
+    }
   };
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

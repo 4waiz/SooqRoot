@@ -4,7 +4,7 @@ import { Card, CardSub, CardTitle } from '../ui/Card';
 import { Textarea } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { StructuredDemandTable } from './StructuredDemandTable';
-import { parseDemandText, ParsedDemand } from '../../lib/ai';
+import { parseDemandTextWithAI, ParsedDemand } from '../../lib/ai';
 import { useTranslation } from '../../i18n/useTranslation';
 import { useApp } from '../../context/useApp';
 import { Demand } from '../../types';
@@ -16,15 +16,15 @@ export function DemandInput() {
   const [parsing, setParsing] = useState(false);
   const [parsed, setParsed] = useState<ParsedDemand | null>(null);
 
-  const handleTranslate = () => {
+  const handleTranslate = async () => {
     if (!text.trim()) return;
     setParsing(true);
-    // Simulate AI thinking so the UI feels real
-    setTimeout(() => {
-      const result = parseDemandText(text, language);
+    try {
+      const result = await parseDemandTextWithAI(text, language);
       setParsed(result);
+    } finally {
       setParsing(false);
-    }, 650);
+    }
   };
 
   const handleSubmit = () => {

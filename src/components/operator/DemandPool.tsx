@@ -18,7 +18,7 @@ import { FulfillmentRiskCard } from './FulfillmentRiskCard';
 import { BatchPassportModal } from './BatchPassportModal';
 import { useApp } from '../../context/useApp';
 import { useTranslation } from '../../i18n/useTranslation';
-import { runAllocation } from '../../lib/allocation';
+import { runAllocationWithAI } from '../../lib/allocation';
 import { Allocation, AllocationLine, AllocationPart, Demand } from '../../types';
 import { dictionaries } from '../../i18n/translations';
 
@@ -28,6 +28,7 @@ export function DemandPool() {
     useApp();
 
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [allocating, setAllocating] = useState<Record<string, boolean>>({});
   const [passportOpen, setPassportOpen] = useState<{
     demand: Demand;
     line: AllocationLine;
@@ -36,13 +37,18 @@ export function DemandPool() {
 
   const toggle = (id: string) => setExpanded((p) => ({ ...p, [id]: !p[id] }));
 
-  const handleAllocate = (demand: Demand) => {
-    const result = runAllocation(demand, farms, buyers);
-    setAllocation(result);
-    if (demand.status === 'Request' || demand.status === 'Structured') {
-      updateDemand(demand.id, { status: 'Allocated' });
+  const handleAllocate = async (demand: Demand) => {
+    setAllocating((p) => ({ ...p, [demand.id]: true }));
+    try {
+      const result = await runAllocationWithAI(demand, farms, buyers);
+      setAllocation(result);
+      if (demand.status === 'Request' || demand.status === 'Structured') {
+        updateDemand(demand.id, { status: 'Allocated' });
+      }
+      setExpanded((p) => ({ ...p, [demand.id]: true }));
+    } finally {
+      setAllocating((p) => ({ ...p, [demand.id]: false }));
     }
-    setExpanded((p) => ({ ...p, [demand.id]: true }));
   };
 
   return (
@@ -120,9 +126,16 @@ export function DemandPool() {
                     <Button
                       size="sm"
                       onClick={() => handleAllocate(demand)}
+                      disabled={Boolean(allocating[demand.id])}
                       icon={<Play size={14} />}
                     >
-                      {a ? t('operator_rerun') : t('operator_runAllocation')}
+                      {allocating[demand.id]
+                        ? language === 'ar'
+                          ? 'AI...'
+                          : 'AI...'
+                        : a
+                        ? t('operator_rerun')
+                        : t('operator_runAllocation')}
                     </Button>
                     {a ? (
                       <Button
