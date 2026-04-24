@@ -125,15 +125,15 @@ export function Landing() {
 
         <div className="md:col-span-2 grid grid-cols-2 gap-3">
           <ShowcaseTile
-            src="https://images.unsplash.com/photo-1592419044706-39796d40f98c?auto=format&fit=crop&w=600&q=80"
+            src="https://images.unsplash.com/photo-1622383563227-04401ab4e5ea?auto=format&fit=crop&w=600&q=80"
             label="Vegetables"
           />
           <ShowcaseTile
-            src="https://images.unsplash.com/photo-1534043464124-3be32fe000c9?auto=format&fit=crop&w=600&q=80"
+            src="https://images.unsplash.com/photo-1498654200943-1088dd4438ae?auto=format&fit=crop&w=600&q=80"
             label="Fish"
           />
           <ShowcaseTile
-            src="https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=600&q=80"
+            src="https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?auto=format&fit=crop&w=600&q=80"
             label="Honey"
           />
           <ShowcaseTile

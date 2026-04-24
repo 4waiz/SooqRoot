@@ -9,7 +9,7 @@ export const SEED_FARMS: Farm[] = [
     locationAr: 'العين',
     distanceKm: 12,
     photo:
-      'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1592838064575-70ed626d3a0e?auto=format&fit=crop&w=900&q=80',
     confidenceLevel: 'Confirmed',
     supplies: [
       {
@@ -58,7 +58,7 @@ export const SEED_FARMS: Farm[] = [
     locationAr: 'أطراف أبوظبي',
     distanceKm: 45,
     photo:
-      'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1556801712-76c8eb07bbc9?auto=format&fit=crop&w=900&q=80',
     confidenceLevel: 'Confirmed',
     supplies: [
       {
@@ -107,7 +107,7 @@ export const SEED_FARMS: Farm[] = [
     locationAr: 'أبوظبي',
     distanceKm: 60,
     photo:
-      'https://images.unsplash.com/photo-1534043464124-3be32fe000c9?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1498654200943-1088dd4438ae?auto=format&fit=crop&w=900&q=80',
     confidenceLevel: 'Confirmed',
     supplies: [
       {
@@ -144,7 +144,7 @@ export const SEED_FARMS: Farm[] = [
     locationAr: 'العين',
     distanceKm: 18,
     photo:
-      'https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?auto=format&fit=crop&w=900&q=80',
     confidenceLevel: 'Confirmed',
     supplies: [
       {
@@ -179,7 +179,7 @@ export const SEED_FARMS: Farm[] = [
     locationAr: 'العين',
     distanceKm: 20,
     photo:
-      'https://images.unsplash.com/photo-1592419044706-39796d40f98c?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1622383563227-04401ab4e5ea?auto=format&fit=crop&w=900&q=80',
     confidenceLevel: 'Probable',
     supplies: [
       {

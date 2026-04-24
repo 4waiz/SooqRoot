@@ -28,10 +28,6 @@ import {
 } from '../../lib/groq';
 
 const NAV_PAGES: { key: Page; labelKey: Parameters<ReturnType<typeof useTranslation>['t']>[0] }[] = [
-  { key: 'landing', labelKey: 'nav_landing' },
-  { key: 'buyer', labelKey: 'nav_buyer' },
-  { key: 'farmer', labelKey: 'nav_farmer' },
-  { key: 'operator', labelKey: 'nav_operator' },
   { key: 'validation', labelKey: 'nav_validation' },
   { key: 'impact', labelKey: 'nav_impact' },
   { key: 'business', labelKey: 'nav_business' },
