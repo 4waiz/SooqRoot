@@ -9,7 +9,6 @@ Built for the UAE agriculture innovation hackathon.
 ## Stack
 
 - React 18 + TypeScript
-- Vite
 - Tailwind CSS
 - lucide-react icons
 - recharts for impact charts
