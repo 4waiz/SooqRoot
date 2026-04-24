@@ -68,19 +68,17 @@ export function Header() {
           />
         </button>
 
-        <Badge tone="emerald" className="ms-2 hidden md:inline-flex" icon={<Sparkles size={12} />}>
-          {t('header_demoActive')}
-        </Badge>
 
-        <nav className="hidden lg:flex items-center gap-1 ms-6">
+
+        <nav className="hidden lg:flex items-center gap-1.5 ms-6 px-1.5 py-1 rounded-2xl border border-white/30 dark:border-white/10 bg-white/40 dark:bg-white/5 backdrop-blur-md shadow-sm">
           {NAV_PAGES.map((n) => (
             <button
               key={n.key}
               onClick={() => setPage(n.key)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
+              className={`px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all duration-200 border ${
                 page === n.key
-                  ? 'bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-200'
-                  : 'text-charcoal-600 dark:text-charcoal-300 hover:bg-charcoal-100 dark:hover:bg-charcoal-800'
+                  ? 'bg-white/70 dark:bg-white/15 border-white/60 dark:border-white/20 text-brand-700 dark:text-brand-200 shadow-[0_0_12px_rgba(34,197,94,0.15)] dark:shadow-[0_0_12px_rgba(34,197,94,0.25)] backdrop-blur-lg'
+                  : 'bg-transparent border-transparent text-charcoal-600 dark:text-charcoal-300 hover:bg-white/50 dark:hover:bg-white/10 hover:border-white/40 dark:hover:border-white/15 hover:shadow-sm'
               }`}
             >
               {t(n.labelKey)}

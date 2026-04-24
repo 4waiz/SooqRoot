@@ -1,3 +1,4 @@
+import React, { useRef, useState, useEffect } from 'react';
 import {
   Users,
   Building2,
@@ -57,6 +58,25 @@ const FARM_MIX = [
 export function ImpactDashboard() {
   const { t, language } = useTranslation();
   const s = IMPACT_STATS;
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const handleScroll = () => {
+    if (!scrollRef.current) return;
+    const { scrollLeft, clientWidth } = scrollRef.current;
+    // On mobile, each card is roughly 85% width.
+    const cardWidth = scrollRef.current.children[0]?.clientWidth || clientWidth;
+    const index = Math.round(scrollLeft / cardWidth);
+    if (index !== activeIndex) setActiveIndex(index);
+  };
+
+  useEffect(() => {
+    const scrollEl = scrollRef.current;
+    if (scrollEl) {
+      scrollEl.addEventListener('scroll', handleScroll, { passive: true });
+      return () => scrollEl.removeEventListener('scroll', handleScroll);
+    }
+  }, [activeIndex]);
 
   return (
     <div className="space-y-6">
@@ -69,51 +89,57 @@ export function ImpactDashboard() {
         <p className="section-subtitle">{t('impact_subtitle')}</p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        <StatCard label={t('impact_farms')} value={s.farmsOnboarded} icon={<Users size={16} />} tone="brand" />
-        <StatCard label={t('impact_buyers')} value={s.buyers} icon={<Building2 size={16} />} tone="sky" />
-        <StatCard
-          label={t('impact_matched')}
-          value={`${s.produceMatchedKg.toLocaleString()}kg`}
-          icon={<PackageCheck size={16} />}
-          tone="emerald"
-        />
-        <StatCard
-          label={t('impact_fillRate')}
-          value={`${Math.round(s.fillRate * 100)}%`}
-          icon={<TrendingUp size={16} />}
-          tone="brand"
-        />
-        <StatCard
-          label={t('impact_local')}
-          value={`${Math.round(s.localSourcing * 100)}%`}
-          icon={<Leaf size={16} />}
-          tone="emerald"
-        />
-        <StatCard
-          label={t('impact_prevented')}
-          value={s.shortfallsPrevented}
-          icon={<ShieldAlert size={16} />}
-          tone="amber"
-        />
-        <StatCard
-          label={t('impact_waste')}
-          value={`${s.wasteRiskReducedKg}kg`}
-          icon={<Gauge size={16} />}
-          tone="sand"
-        />
-        <StatCard
-          label={t('impact_confidence')}
-          value={`${Math.round(s.avgFulfillmentConfidence * 100)}%`}
-          icon={<Target size={16} />}
-          tone="brand"
-        />
-        <StatCard
-          label={t('impact_value')}
-          value={s.orderValueAED.toLocaleString()}
-          icon={<BadgeDollarSign size={16} />}
-          tone="brand"
-        />
+      {/* Metric Cards Carousel / Grid */}
+      <div className="relative group/carousel">
+        <div 
+          ref={scrollRef}
+          className="flex lg:grid lg:grid-cols-5 gap-4 overflow-x-auto lg:overflow-x-visible snap-x snap-mandatory no-scrollbar pb-6 lg:pb-0 -mx-4 px-4 lg:mx-0 lg:px-0"
+        >
+          {/* Operational Scale */}
+          <div className="min-w-[85%] sm:min-w-[45%] lg:min-w-0 snap-center lg:snap-align-none">
+            <StatCard label={t('impact_farms')} value={s.farmsOnboarded} icon={<Users size={18} />} tone="brand" />
+          </div>
+          <div className="min-w-[85%] sm:min-w-[45%] lg:min-w-0 snap-center lg:snap-align-none">
+            <StatCard label={t('impact_buyers')} value={s.buyers} icon={<Building2 size={18} />} tone="sky" />
+          </div>
+          <div className="min-w-[85%] sm:min-w-[45%] lg:min-w-0 snap-center lg:snap-align-none">
+            <StatCard label={t('impact_matched')} value={`${s.produceMatchedKg.toLocaleString()}kg`} icon={<PackageCheck size={18} />} tone="emerald" />
+          </div>
+
+          {/* Waste Reduction */}
+          <div className="min-w-[85%] sm:min-w-[45%] lg:min-w-0 snap-center lg:snap-align-none">
+            <StatCard label={t('impact_waste')} value={`${s.wasteRiskReducedKg}kg`} icon={<Gauge size={18} />} tone="sand" />
+          </div>
+          <div className="min-w-[85%] sm:min-w-[45%] lg:min-w-0 snap-center lg:snap-align-none">
+            <StatCard label={t('impact_prevented')} value={s.shortfallsPrevented} icon={<ShieldAlert size={18} />} tone="amber" />
+          </div>
+
+          {/* Buyer Value */}
+          <div className="min-w-[85%] sm:min-w-[45%] lg:min-w-0 snap-center lg:snap-align-none">
+            <StatCard label={t('impact_fillRate')} value={`${Math.round(s.fillRate * 100)}%`} icon={<TrendingUp size={18} />} tone="brand" />
+          </div>
+          <div className="min-w-[85%] sm:min-w-[45%] lg:min-w-0 snap-center lg:snap-align-none">
+            <StatCard label={t('impact_local')} value={`${Math.round(s.localSourcing * 100)}%`} icon={<Leaf size={18} />} tone="emerald" />
+          </div>
+          <div className="min-w-[85%] sm:min-w-[45%] lg:min-w-0 snap-center lg:snap-align-none">
+            <StatCard label={t('impact_confidence')} value={`${Math.round(s.avgFulfillmentConfidence * 100)}%`} icon={<Target size={18} />} tone="brand" />
+          </div>
+
+          {/* Revenue */}
+          <div className="min-w-[85%] sm:min-w-[45%] lg:min-w-0 snap-center lg:snap-align-none">
+            <StatCard label={t('impact_value')} value={s.orderValueAED.toLocaleString()} icon={<BadgeDollarSign size={18} />} tone="brand" />
+          </div>
+        </div>
+
+        {/* Pagination Dots (Mobile/Tablet only) */}
+        <div className="flex lg:hidden justify-center gap-1.5 mt-2 mb-4">
+          {[...Array(9)].map((_, i) => (
+            <div 
+              key={i} 
+              className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${i === activeIndex ? 'bg-brand-600 w-4' : 'bg-charcoal-200 dark:bg-charcoal-700'}`}
+            />
+          ))}
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-5">

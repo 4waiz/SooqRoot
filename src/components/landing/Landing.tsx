@@ -1,4 +1,5 @@
-import { ArrowRight, Sparkles, Network, CalendarClock, Leaf, ShieldCheck, TrendingUp, Globe2 } from 'lucide-react';
+import React from 'react';
+import { ArrowRight, Sparkles, Network, CalendarClock, Leaf, ShieldCheck, TrendingUp, Globe2, ShoppingBasket, ClipboardList, Sprout, Truck } from 'lucide-react';
 import { useApp } from '../../context/useApp';
 import { useTranslation } from '../../i18n/useTranslation';
 import { Card, CardTitle } from '../ui/Card';
@@ -67,7 +68,7 @@ export function Landing() {
       <section>
         <div className="grid md:grid-cols-3 gap-5">
           <FeatureCard
-            icon={<Sparkles size={22} />}
+            icon={<ShoppingBasket size={22} />}
             title={t('landing_feature1_title')}
             desc={t('landing_feature1_desc')}
             accent="brand"
@@ -79,7 +80,7 @@ export function Landing() {
             accent="sand"
           />
           <FeatureCard
-            icon={<CalendarClock size={22} />}
+            icon={<ShieldCheck size={22} />}
             title={t('landing_feature3_title')}
             desc={t('landing_feature3_desc')}
             accent="emerald"
@@ -87,60 +88,91 @@ export function Landing() {
         </div>
       </section>
 
-      {/* Explainer + Imagery showcase */}
-      <section className="grid md:grid-cols-5 gap-5 items-stretch">
-        <Card className="md:col-span-3">
-          <CardTitle>{t('landing_why_title')}</CardTitle>
-          <ul className="mt-4 grid sm:grid-cols-2 gap-3">
+      {/* Horizontal flow: How SooqRoot Works */}
+      <section>
+        <Card className="bg-brand-50/40 dark:bg-brand-900/10 border-brand-100/50 dark:border-brand-800/50 p-8">
+          <div className="mb-10 text-center">
+             <span className="px-3 py-1 rounded-full bg-brand-100 dark:bg-brand-900/40 text-[10px] font-bold uppercase tracking-widest text-brand-700 dark:text-brand-300">
+               {t('landing_flow_title')}
+             </span>
+          </div>
+          
+          <div className="relative flex flex-col sm:flex-row items-center justify-between gap-10 sm:gap-4">
+            {/* Desktop Connector Line */}
+            <div className={`absolute top-8 ${isRtl ? 'right-[10%] left-[10%]' : 'left-[10%] right-[10%]'} h-[2px] bg-gradient-to-r from-brand-100 via-brand-200 to-brand-100 dark:from-brand-900/20 dark:via-brand-800/40 dark:to-brand-900/20 hidden sm:block`} />
+            
             {[
-              { icon: <CalendarClock size={16} />, text: t('landing_why_item1') },
-              { icon: <Leaf size={16} />, text: t('landing_why_item2') },
-              { icon: <TrendingUp size={16} />, text: t('landing_why_item3') },
-              { icon: <ShieldCheck size={16} />, text: t('landing_why_item4') },
+              { step: t('landing_flow_step1'), desc: t('landing_flow_step1_desc'), icon: <ClipboardList size={26} /> },
+              { step: t('landing_flow_step2'), desc: t('landing_flow_step2_desc'), icon: <Network size={26} /> },
+              { step: t('landing_flow_step3'), desc: t('landing_flow_step3_desc'), icon: <Sprout size={26} /> },
+              { step: t('landing_flow_step4'), desc: t('landing_flow_step4_desc'), icon: <Truck size={26} /> },
+            ].map((item, i, arr) => (
+              <React.Fragment key={i}>
+                <div className="relative flex flex-col items-center text-center gap-4 min-w-0 flex-1 group">
+                  <div className="w-16 h-16 rounded-3xl bg-white dark:bg-charcoal-900 border-2 border-white dark:border-charcoal-800 shadow-soft text-brand-600 dark:text-brand-400 flex items-center justify-center z-10 transition-transform group-hover:scale-105">
+                    {item.icon}
+                  </div>
+                  <div className="space-y-1.5 z-10 px-2">
+                    <h3 className="text-base font-extrabold text-charcoal-900 dark:text-white leading-tight">
+                      {item.step}
+                    </h3>
+                    <p className="text-[11px] font-medium text-charcoal-500 dark:text-charcoal-400 leading-relaxed max-w-[140px] mx-auto">
+                      {item.desc}
+                    </p>
+                  </div>
+                </div>
+                {/* Arrow (Mobile only) */}
+                {i < arr.length - 1 && (
+                  <div className="sm:hidden flex items-center justify-center -my-4 z-0">
+                     <ArrowRight size={20} className={`text-brand-200 dark:text-brand-800 ${isRtl ? 'rotate-[-90deg]' : 'rotate-90'}`} />
+                  </div>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+        </Card>
+      </section>
+
+      {/* What Changes With SooqRoot */}
+      <section>
+        <Card className="w-full">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex-1">
+              <CardTitle>{t('landing_why_title')}</CardTitle>
+              <p className="mt-2 text-sm md:text-base font-bold text-brand-600 dark:text-brand-400">
+                {t('landing_why_anchor')}
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-4 text-xs text-charcoal-500 dark:text-charcoal-400">
+              <span className="inline-flex items-center gap-1">
+                <Globe2 size={14} /> UAE · الإمارات
+              </span>
+              <span className="hidden sm:inline">·</span>
+              <span className="font-medium text-charcoal-700 dark:text-charcoal-200">{t('appTaglineAlt')}</span>
+            </div>
+          </div>
+
+          <ul className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { icon: <CalendarClock size={18} />, text: t('landing_why_item1') },
+              { icon: <Sprout size={18} />, text: t('landing_why_item2') },
+              { icon: <Network size={18} />, text: t('landing_why_item3') },
+              { icon: <ShieldCheck size={18} />, text: t('landing_why_item4') },
             ].map((item, i) => (
               <li
                 key={i}
-                className="flex items-start gap-3 rounded-xl bg-brand-50 dark:bg-brand-900/20 p-3"
+                className="flex flex-col gap-3 rounded-2xl border border-charcoal-100 dark:border-charcoal-800 bg-white/50 dark:bg-charcoal-900/50 p-5 transition-all hover:shadow-md hover:border-brand-200 dark:hover:border-brand-900/40"
               >
-                <span className="mt-0.5 inline-flex items-center justify-center w-7 h-7 rounded-lg bg-brand-600 text-white">
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-brand-600 text-white shadow-soft">
                   {item.icon}
-                </span>
-                <span className="text-sm font-medium text-charcoal-800 dark:text-charcoal-100 leading-relaxed">
+                </div>
+                <span className="text-sm font-bold text-charcoal-900 dark:text-white leading-snug">
                   {item.text}
                 </span>
               </li>
             ))}
           </ul>
-          <p className="mt-6 text-sm text-charcoal-600 dark:text-charcoal-300 leading-relaxed">
-            {t('appExplainer')}
-          </p>
-          <div className="mt-6 flex flex-wrap items-center gap-2 text-xs text-charcoal-500 dark:text-charcoal-400">
-            <span className="inline-flex items-center gap-1">
-              <Globe2 size={14} /> UAE · الإمارات
-            </span>
-            <span>·</span>
-            <span>{t('appTaglineAlt')}</span>
-          </div>
         </Card>
-
-        <div className="md:col-span-2 grid grid-cols-2 gap-3">
-          <ShowcaseTile
-            src="https://images.unsplash.com/photo-1622383563227-04401ab4e5ea?auto=format&fit=crop&w=600&q=80"
-            label="Vegetables"
-          />
-          <ShowcaseTile
-            src="https://images.unsplash.com/photo-1498654200943-1088dd4438ae?auto=format&fit=crop&w=600&q=80"
-            label="Fish"
-          />
-          <ShowcaseTile
-            src="https://images.unsplash.com/photo-1558642452-9d2a7deb7f62?auto=format&fit=crop&w=600&q=80"
-            label="Honey"
-          />
-          <ShowcaseTile
-            src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=600&q=80"
-            label="Hotels"
-          />
-        </div>
       </section>
     </div>
   );
@@ -171,21 +203,5 @@ function FeatureCard({
       <h3 className="mt-4 text-lg font-semibold text-charcoal-900 dark:text-white">{title}</h3>
       <p className="mt-2 text-sm text-charcoal-600 dark:text-charcoal-300 leading-relaxed">{desc}</p>
     </Card>
-  );
-}
-
-function ShowcaseTile({ src, label }: { src: string; label: string }) {
-  return (
-    <div className="relative overflow-hidden rounded-2xl shadow-soft aspect-square group">
-      <FallbackImage
-        src={src}
-        alt={label}
-        className="w-full h-full object-cover transition-transform group-hover:scale-105"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-      <div className="absolute bottom-2 start-2 text-white text-xs font-semibold tracking-wide">
-        {label}
-      </div>
-    </div>
   );
 }
