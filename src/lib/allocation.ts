@@ -6,6 +6,7 @@ import {
   Confidence,
   Demand,
   Farm,
+  FarmSupply,
 } from '../types';
 import { calculateFulfillmentRisk, suggestSubstitutes } from './ai';
 
@@ -42,24 +43,28 @@ export function runAllocation(
   let partCounter = 0;
 
   for (const demandLine of demand.lines) {
-    const candidates = farms
-      .map((f) => {
-        const supply = f.supplies.find((s) => s.product === demandLine.product);
-        if (!supply) return null;
-        const available = remaining[f.id][demandLine.product] ?? 0;
-        if (available <= 0) return null;
-        return { farm: f, supply, available };
-      })
-      .filter((x): x is { farm: Farm; supply: typeof x.supply; available: number } => Boolean(x));
+    interface Candidate {
+      farm: Farm;
+      supply: FarmSupply;
+      available: number;
+    }
+    const candidates: Candidate[] = [];
+    for (const f of farms) {
+      const supply = f.supplies.find((s) => s.product === demandLine.product);
+      if (!supply) continue;
+      const available = remaining[f.id][demandLine.product] ?? 0;
+      if (available <= 0) continue;
+      candidates.push({ farm: f, supply, available });
+    }
 
     candidates.sort((a, b) => {
       // (a) exact grade match
-      const aGrade = a.supply!.grade === demandLine.grade ? 0 : 1;
-      const bGrade = b.supply!.grade === demandLine.grade ? 0 : 1;
+      const aGrade = a.supply.grade === demandLine.grade ? 0 : 1;
+      const bGrade = b.supply.grade === demandLine.grade ? 0 : 1;
       if (aGrade !== bGrade) return aGrade - bGrade;
       // (b) confidence
       const cDiff =
-        CONFIDENCE_RANK[b.supply!.confidence] - CONFIDENCE_RANK[a.supply!.confidence];
+        CONFIDENCE_RANK[b.supply.confidence] - CONFIDENCE_RANK[a.supply.confidence];
       if (cDiff !== 0) return cDiff;
       // (c) same-city preferred
       const aLocal = a.farm.location.toLowerCase() === buyerCity.toLowerCase() ? 0 : 1;
@@ -81,7 +86,7 @@ export function runAllocation(
       parts.push({
         farmId: cand.farm.id,
         qty: take,
-        confidence: cand.supply!.confidence,
+        confidence: cand.supply.confidence,
         batchId: makeBatchId(demand.id, cand.farm.id, partCounter++),
       });
       remainingDemand -= take;
