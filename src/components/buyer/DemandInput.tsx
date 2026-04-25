@@ -7,11 +7,33 @@ import { StructuredDemandTable } from './StructuredDemandTable';
 import { parseDemandTextWithAI, ParsedDemand } from '../../lib/ai';
 import { useTranslation } from '../../i18n/useTranslation';
 import { useApp } from '../../context/useApp';
-import { Demand } from '../../types';
+import { Demand, DemandLine } from '../../types';
+
+function mergeDemandLines(existing: DemandLine[], incoming: DemandLine[]): DemandLine[] {
+  const merged = existing.map((line) => ({ ...line }));
+
+  for (const line of incoming) {
+    const sameLine = merged.find(
+      (current) => current.product === line.product && current.unit === line.unit
+    );
+
+    if (sameLine) {
+      sameLine.qty = Math.round((sameLine.qty + line.qty) * 100) / 100;
+      sameLine.deliveryWindow = line.deliveryWindow || sameLine.deliveryWindow;
+      sameLine.deliveryWindowAr = line.deliveryWindowAr || sameLine.deliveryWindowAr;
+      sameLine.locationPref = line.locationPref || sameLine.locationPref;
+      sameLine.locationPrefAr = line.locationPrefAr || sameLine.locationPrefAr;
+    } else {
+      merged.push(line);
+    }
+  }
+
+  return merged;
+}
 
 export function DemandInput() {
   const { t, language } = useTranslation();
-  const { activeBuyerId, addDemand, setPage } = useApp();
+  const { activeBuyerId, addDemand, demands, updateDemand, removeAllocation, setPage } = useApp();
   const [text, setText] = useState('');
   const [parsing, setParsing] = useState(false);
   const [parsed, setParsed] = useState<ParsedDemand | null>(null);
@@ -29,6 +51,27 @@ export function DemandInput() {
 
   const handleSubmit = () => {
     if (!parsed || !parsed.lines.length) return;
+    const existingDemand = demands
+      .filter((d) => d.buyerId === activeBuyerId && d.status !== 'Delivered')
+      .sort((a, b) => b.createdAt - a.createdAt)[0];
+
+    if (existingDemand) {
+      updateDemand(existingDemand.id, {
+        createdAt: Date.now(),
+        rawText: `${existingDemand.rawText}\n${text}`,
+        status: 'Structured',
+        lines: mergeDemandLines(existingDemand.lines, parsed.lines),
+        aiInterpretation: parsed.interpretation,
+        aiInterpretationAr: parsed.interpretationAr,
+        aiConfidence: parsed.confidence,
+      });
+      removeAllocation(existingDemand.id);
+      setText('');
+      setParsed(null);
+      setPage('operator');
+      return;
+    }
+
     const demand: Demand = {
       id: `demand-${Date.now()}`,
       buyerId: activeBuyerId,

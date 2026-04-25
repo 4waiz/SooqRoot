@@ -13,7 +13,7 @@ export type Page =
 
 export type Confidence = 'Confirmed' | 'Probable' | 'Stretch';
 export type Grade = 'A' | 'B';
-export type ProductCategory = 'vegetable' | 'fish' | 'honey' | 'leafygreen';
+export type ProductCategory = 'vegetable' | 'fruit' | 'fish' | 'honey' | 'leafygreen' | 'other';
 
 export type OrderStatus =
   | 'Request'

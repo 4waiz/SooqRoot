@@ -48,6 +48,36 @@ const PRODUCTS: ProductDef[] = [
     defaultPackagingAr: 'صناديق 5 كجم',
   },
   {
+    en: 'Carrots',
+    ar: 'جزر',
+    category: 'vegetable',
+    unit: 'kg',
+    keywordsEn: ['carrot', 'carrots'],
+    keywordsAr: ['جزر'],
+    defaultPackagingEn: '5kg boxes',
+    defaultPackagingAr: 'صناديق 5 كجم',
+  },
+  {
+    en: 'Apples',
+    ar: 'تفاح',
+    category: 'fruit',
+    unit: 'kg',
+    keywordsEn: ['apple', 'apples'],
+    keywordsAr: ['تفاح'],
+    defaultPackagingEn: '5kg boxes',
+    defaultPackagingAr: 'صناديق 5 كجم',
+  },
+  {
+    en: 'Bananas',
+    ar: 'موز',
+    category: 'fruit',
+    unit: 'kg',
+    keywordsEn: ['banana', 'bananas'],
+    keywordsAr: ['موز'],
+    defaultPackagingEn: '5kg boxes',
+    defaultPackagingAr: 'صناديق 5 كجم',
+  },
+  {
     en: 'Lettuce',
     ar: 'خس',
     category: 'leafygreen',
@@ -152,7 +182,7 @@ interface GroqDemandLine {
   product?: string;
   productAr?: string;
   qty?: number;
-  unit?: 'kg' | 'boxes' | 'jars';
+  unit?: 'kg' | 'g' | 'grams' | 'boxes' | 'jars';
   grade?: Grade;
   packaging?: string;
   packagingAr?: string;
@@ -185,16 +215,15 @@ export function parseDemandText(text: string, lang: Language): ParsedDemand {
     const kwIdx = normalized.indexOf(m[1].toLowerCase());
     const windowStart = Math.max(0, kwIdx - 40);
     const windowEnd = Math.min(normalized.length, kwIdx + 40);
-    const windowText = normalized.slice(windowStart, windowEnd);
-    const qtyMatch = windowText.match(/(\d{1,4})\s*(kg|كجم|boxes?|صناديق|jars?|برطمان\w*)?/);
+    const qtyMatch = findQuantityNearKeyword(normalized, kwIdx, windowStart, windowEnd);
     if (!qtyMatch) continue;
 
-    const qty = parseInt(qtyMatch[1], 10);
+    const qty = qtyMatch.qty;
     if (!qty || qty <= 0) continue;
 
-    const unitToken = (qtyMatch[2] || '').toLowerCase();
+    const unitToken = qtyMatch.unitToken.toLowerCase();
     let unit = p.unit;
-    if (/(kg|كجم)/i.test(unitToken)) unit = 'kg';
+    if (/(kg|كجم|g|grams?|جم)/i.test(unitToken)) unit = 'kg';
     else if (/(box|صناديق|صندوق)/i.test(unitToken)) unit = 'boxes';
     else if (/(jar|برطمان)/i.test(unitToken)) unit = 'jars';
 
@@ -269,11 +298,18 @@ export function parseDemandText(text: string, lang: Language): ParsedDemand {
     totalQty += qty;
   }
 
+  const customLines = parseCustomDemandLines(text, lines);
+  for (const line of customLines) {
+    lines.push(line);
+    matchCount++;
+    totalQty += line.qty;
+  }
+
   const confidence = Math.min(0.98, 0.55 + matchCount * 0.12);
 
   const interpretation =
     matchCount === 0
-      ? 'Could not confidently detect specific items. Please include product, quantity and day.'
+      ? 'Could not confidently detect specific items. Please include product and quantity.'
       : `Detected ${matchCount} product line(s) with a total of ~${totalQty} units. The AI inferred grade, packaging and delivery window from keywords and applied UAE-standard defaults where unspecified.`;
 
   const interpretationAr =
@@ -303,7 +339,7 @@ export async function parseDemandTextWithAI(text: string, lang: Language): Promi
         {
           role: 'system',
           content:
-            'You convert UAE farm produce buyer requests into strict JSON. Return only JSON with keys: lines, interpretation, interpretationAr, confidence. Use only products from the provided catalog. If data is missing, infer reasonable UAE farm-market defaults. confidence must be 0 to 1.',
+            'You convert UAE farm produce buyer requests into strict JSON. Return only JSON with keys: lines, interpretation, interpretationAr, confidence. Prefer products from the provided catalog, but if the buyer asks for a product outside the catalog, return it as a custom product instead of dropping it. If data is missing, infer reasonable UAE farm-market defaults. confidence must be 0 to 1.',
         },
         {
           role: 'user',
@@ -312,10 +348,10 @@ export async function parseDemandTextWithAI(text: string, lang: Language): Promi
             buyerRequest: text,
             productCatalog,
             lineSchema: {
-              product: 'English product name from catalog',
-              productAr: 'Arabic product name from catalog',
+              product: 'English product name from catalog, or a title-cased custom product from the buyer text',
+              productAr: 'Arabic product name from catalog, or same/custom product name when translation is unknown',
               qty: 'number',
-              unit: 'kg | boxes | jars',
+              unit: 'kg | boxes | jars. Convert gram requests into kg decimals, for example 200g becomes qty 0.2 and unit kg.',
               grade: 'A | B',
               packaging: 'English packaging text',
               packagingAr: 'Arabic packaging text',
@@ -353,27 +389,32 @@ function sanitizeGroqDemandLines(lines: GroqDemandLine[]): DemandLine[] {
           p.en.toLowerCase() === String(line.product || '').toLowerCase() ||
           p.ar === line.productAr
       );
-      if (!productDef) return null;
-
-      const qty = Number(line.qty);
-      if (!Number.isFinite(qty) || qty <= 0) return null;
+      const customProduct = cleanProductName(String(line.product || ''));
+      if (!productDef && !customProduct) return null;
 
       const unit =
-        line.unit === 'kg' || line.unit === 'boxes' || line.unit === 'jars'
+        line.unit === 'kg' || line.unit === 'g' || line.unit === 'grams' || line.unit === 'boxes' || line.unit === 'jars'
           ? line.unit
-          : productDef.unit;
+          : productDef?.unit || 'kg';
+      const normalizedUnit = unit === 'g' || unit === 'grams' ? 'kg' : unit;
+      const qty = normalizeDemandQty(Number(line.qty), unit);
+      if (!Number.isFinite(qty) || qty <= 0) return null;
       const grade = line.grade === 'B' ? 'B' : 'A';
+      const product = productDef?.en || titleCaseProduct(customProduct);
+      const productAr = productDef?.ar || line.productAr || product;
+      const packaging = productDef?.defaultPackagingEn || defaultPackagingForUnit(normalizedUnit);
+      const packagingAr = productDef?.defaultPackagingAr || defaultPackagingArForUnit(normalizedUnit);
 
       return {
         id: `line-${now}-${idx}`,
-        product: productDef.en,
-        productAr: productDef.ar,
-        category: productDef.category,
-        qty: Math.round(qty),
-        unit,
+        product,
+        productAr,
+        category: productDef?.category || 'other',
+        qty,
+        unit: normalizedUnit,
         grade,
-        packaging: line.packaging || productDef.defaultPackagingEn,
-        packagingAr: line.packagingAr || productDef.defaultPackagingAr,
+        packaging: line.packaging || packaging,
+        packagingAr: line.packagingAr || packagingAr,
         deliveryWindow: line.deliveryWindow || 'This week',
         deliveryWindowAr: line.deliveryWindowAr || 'Ù‡Ø°Ø§ Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹',
         locationPref: line.locationPref,
@@ -387,6 +428,120 @@ function clampConfidence(value: unknown, fallback: number): number {
   const n = Number(value);
   if (!Number.isFinite(n)) return fallback;
   return Math.max(0, Math.min(1, n));
+}
+
+function normalizeDemandQty(qty: number, unit: string): number {
+  if (!Number.isFinite(qty) || qty <= 0) return 0;
+  if (unit === 'g' || unit === 'grams') return Math.round((qty / 1000) * 100) / 100;
+  if (unit === 'kg') return Math.round(qty * 100) / 100;
+  return Math.round(qty);
+}
+
+function parseCustomDemandLines(text: string, existingLines: DemandLine[]): DemandLine[] {
+  const lines: DemandLine[] = [];
+  const seenProducts = new Set(existingLines.map((line) => productNameKey(line.product)));
+  const qtyProductRegex =
+    /(\d{1,4})\s*(kg|كجم|g|grams?|جم|boxes?|صناديق|jars?|برطمان\w*)?\s*(?:of\s+)?([a-z\u0600-\u06ff][a-z\u0600-\u06ff\s-]{1,30}?)(?=\s+\d{1,4}\s*(?:kg|كجم|g|grams?|جم|boxes?|صناديق|jars?|برطمان\w*)?\s*(?:of\s+)?|[,.;\n]|$)/gi;
+
+  for (const match of text.matchAll(qtyProductRegex)) {
+    const unitToken = match[2] || 'kg';
+    const unit = unitFromToken(unitToken);
+    const productName = cleanProductName(match[3]);
+    if (!productName) continue;
+
+    const key = productNameKey(productName);
+    if (seenProducts.has(key)) continue;
+
+    const qty = normalizeDemandQty(parseInt(match[1], 10), unitToken);
+    if (!qty || qty <= 0) continue;
+
+    seenProducts.add(key);
+    lines.push({
+      id: `line-${Date.now()}-custom-${lines.length}`,
+      product: titleCaseProduct(productName),
+      productAr: titleCaseProduct(productName),
+      category: 'other',
+      qty,
+      unit,
+      grade: 'A',
+      packaging: defaultPackagingForUnit(unit),
+      packagingAr: defaultPackagingArForUnit(unit),
+      deliveryWindow: 'This week',
+      deliveryWindowAr: 'هذا الأسبوع',
+    });
+  }
+
+  return lines;
+}
+
+function unitFromToken(token: string): 'kg' | 'boxes' | 'jars' {
+  if (/(box|صناديق|صندوق)/i.test(token)) return 'boxes';
+  if (/(jar|برطمان)/i.test(token)) return 'jars';
+  return 'kg';
+}
+
+function defaultPackagingForUnit(unit: 'kg' | 'boxes' | 'jars'): string {
+  if (unit === 'jars') return 'labelled jars';
+  if (unit === 'boxes') return 'standard crates';
+  return '5kg boxes';
+}
+
+function defaultPackagingArForUnit(unit: 'kg' | 'boxes' | 'jars'): string {
+  if (unit === 'jars') return 'برطمانات مع ملصقات';
+  if (unit === 'boxes') return 'صناديق قياسية';
+  return 'صناديق 5 كجم';
+}
+
+function cleanProductName(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/\b(please|pls|need|needs|want|wants|required|for|on|by|in|to|this|week|next|morning|evening|delivery|deliver|grade|a|b|monday|tuesday|wednesday|thursday|friday|saturday|sunday|dubai|abu|dhabi|sharjah|ajman|fujairah)\b/g, ' ')
+    .replace(/[^\p{L}\s-]/gu, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function titleCaseProduct(value: string): string {
+  return value
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
+function productNameKey(value: string): string {
+  return cleanProductName(value).replace(/s$/i, '');
+}
+
+function findQuantityNearKeyword(
+  normalized: string,
+  kwIdx: number,
+  windowStart: number,
+  windowEnd: number
+): { qty: number; unitToken: string } | null {
+  const windowText = normalized.slice(windowStart, windowEnd);
+  const qtyRegex = /(\d{1,4})\s*(kg|كجم|g|grams?|جم|boxes?|صناديق|jars?|برطمان\w*)?/gi;
+  let best: { qty: number; unitToken: string; distance: number } | null = null;
+
+  for (const match of windowText.matchAll(qtyRegex)) {
+    const qty = normalizeDemandQty(parseInt(match[1], 10), match[2] || 'kg');
+    if (!qty || qty <= 0) continue;
+
+    const absoluteStart = windowStart + (match.index || 0);
+    const absoluteEnd = absoluteStart + match[0].length;
+    const distance =
+      absoluteEnd < kwIdx
+        ? kwIdx - absoluteEnd
+        : absoluteStart > kwIdx
+          ? absoluteStart - kwIdx
+          : 0;
+
+    if (!best || distance < best.distance) {
+      best = { qty, unitToken: match[2] || '', distance };
+    }
+  }
+
+  return best ? { qty: best.qty, unitToken: best.unitToken } : null;
 }
 
 function escapeRx(s: string) {
@@ -684,6 +839,9 @@ function sanitizeStringArray(value: unknown, fallback: string[]): string[] {
 
 // ---- Substitutes ----
 const SUBSTITUTE_MAP: Record<string, { product: string; productAr: string }[]> = {
+  Carrots: [{ product: 'Cucumbers', productAr: 'خيار' }],
+  Apples: [],
+  Bananas: [{ product: 'Apples', productAr: 'تفاح' }],
   Lettuce: [
     { product: 'Spinach', productAr: 'سبانخ' },
     { product: 'Herbs', productAr: 'أعشاب طازجة' },

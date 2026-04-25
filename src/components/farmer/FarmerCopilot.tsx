@@ -5,12 +5,12 @@ import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { useApp } from '../../context/useApp';
 import { useTranslation } from '../../i18n/useTranslation';
-import { generateFarmerAdviceWithAI } from '../../lib/ai';
+import { generateFarmerAdviceWithAI, parseDemandTextWithAI } from '../../lib/ai';
 import { CopilotMessage, Farm } from '../../types';
 
 export function FarmerCopilot({ farm }: { farm: Farm }) {
   const { t, language } = useTranslation();
-  const { demands } = useApp();
+  const { demands, addFarmSupply } = useApp();
   const [msgs, setMsgs] = useState<CopilotMessage[]>([]);
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);
@@ -26,6 +26,23 @@ export function FarmerCopilot({ farm }: { farm: Farm }) {
     setInput('');
     setThinking(true);
     try {
+      const parsedSupply = await parseDemandTextWithAI(userMsg.text, language);
+      if (looksLikeSupplyDeclaration(userMsg.text) && parsedSupply.lines.length > 0) {
+        parsedSupply.lines.forEach((line) => {
+          addFarmSupply(farm.id, {
+            product: line.product,
+            productAr: line.productAr,
+            category: line.category,
+            qty: line.qty,
+            unit: line.unit,
+            grade: line.grade,
+            confidence: 'Confirmed',
+            packaging: line.packaging,
+            packagingAr: line.packagingAr,
+            harvestDate: line.deliveryWindow,
+          });
+        });
+      }
       const r = await generateFarmerAdviceWithAI(userMsg.text, farm, demands, language);
       const botMsg: CopilotMessage = {
         id: `m-${Date.now()}-b`,
@@ -93,6 +110,10 @@ export function FarmerCopilot({ farm }: { farm: Farm }) {
       </div>
     </Card>
   );
+}
+
+function looksLikeSupplyDeclaration(text: string): boolean {
+  return /\b(i\s+have|we\s+have|available|harvest|ready|عندي|لدينا|متوفر|جاهز)\b/i.test(text);
 }
 
 function Bubble({ msg }: { msg: CopilotMessage }) {

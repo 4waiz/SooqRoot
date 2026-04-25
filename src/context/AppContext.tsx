@@ -53,6 +53,29 @@ const NEXT_STATUS: Record<OrderStatus, OrderStatus> = {
   Delivered: 'Delivered',
 };
 
+function supplyProductKey(supply: FarmSupply): string {
+  return `${supply.product.toLowerCase().replace(/\s+/g, ' ').trim().replace(/s$/i, '')}:${supply.unit}`;
+}
+
+function mergeFarmSupply(existing: FarmSupply[], incoming: FarmSupply): FarmSupply[] {
+  const incomingKey = supplyProductKey(incoming);
+  let merged = false;
+  const supplies = existing.map((supply) => {
+    if (supplyProductKey(supply) !== incomingKey) return supply;
+    merged = true;
+    return {
+      ...supply,
+      qty: Math.round((supply.qty + incoming.qty) * 100) / 100,
+      grade: incoming.grade,
+      confidence: incoming.confidence,
+      packaging: incoming.packaging,
+      packagingAr: incoming.packagingAr,
+      harvestDate: incoming.harvestDate,
+    };
+  });
+  return merged ? supplies : [...existing, incoming];
+}
+
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => loadItem<Language>('language', 'ar'));
   const [theme, setThemeState] = useState<Theme>(() => loadItem<Theme>('theme', 'light'));
@@ -122,7 +145,24 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const addFarmSupply = useCallback((farmId: string, supply: FarmSupply) => {
     setFarms((prev) =>
       prev.map((f) =>
-        f.id === farmId ? { ...f, supplies: [...f.supplies, supply] } : f
+        f.id === farmId
+          ? {
+              ...f,
+              supplies: mergeFarmSupply(f.supplies, supply),
+            }
+          : f
+      )
+    );
+    const incomingKey = supplyProductKey(supply);
+    setAllocations((prev) =>
+      prev.filter(
+        (allocation) =>
+          !allocation.lines.some(
+            (line) =>
+              line.shortfall > 0 &&
+              `${line.product.toLowerCase().replace(/\s+/g, ' ').trim().replace(/s$/i, '')}:${line.unit}` ===
+                incomingKey
+          )
       )
     );
   }, []);

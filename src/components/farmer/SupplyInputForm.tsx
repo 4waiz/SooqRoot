@@ -22,6 +22,9 @@ const PRODUCT_OPTIONS: {
 }[] = [
   { product: 'Tomatoes', productAr: 'طماطم', category: 'vegetable', unit: 'kg', packaging: '5kg boxes', packagingAr: 'صناديق 5 كجم' },
   { product: 'Cucumbers', productAr: 'خيار', category: 'vegetable', unit: 'kg', packaging: '5kg boxes', packagingAr: 'صناديق 5 كجم' },
+  { product: 'Carrots', productAr: 'جزر', category: 'vegetable', unit: 'kg', packaging: '5kg boxes', packagingAr: 'صناديق 5 كجم' },
+  { product: 'Apples', productAr: 'تفاح', category: 'fruit', unit: 'kg', packaging: '5kg boxes', packagingAr: 'صناديق 5 كجم' },
+  { product: 'Bananas', productAr: 'موز', category: 'fruit', unit: 'kg', packaging: '5kg boxes', packagingAr: 'صناديق 5 كجم' },
   { product: 'Lettuce', productAr: 'خس', category: 'leafygreen', unit: 'boxes', packaging: 'standard crates', packagingAr: 'صناديق قياسية' },
   { product: 'Spinach', productAr: 'سبانخ', category: 'leafygreen', unit: 'boxes', packaging: 'standard crates', packagingAr: 'صناديق قياسية' },
   { product: 'Herbs', productAr: 'أعشاب طازجة', category: 'leafygreen', unit: 'boxes', packaging: 'small crates', packagingAr: 'صناديق صغيرة' },
@@ -35,6 +38,9 @@ export function SupplyInputForm({ farmId }: Props) {
   const { t, language } = useTranslation();
   const { addFarmSupply } = useApp();
   const [productIdx, setProductIdx] = useState('0');
+  const [customProduct, setCustomProduct] = useState('');
+  const [customUnit, setCustomUnit] = useState<'kg' | 'boxes' | 'jars'>('kg');
+  const [customPackaging, setCustomPackaging] = useState('5kg boxes');
   const [qty, setQty] = useState('100');
   const [grade, setGrade] = useState<Grade>('A');
   const [confidence, setConfidence] = useState<Confidence>('Confirmed');
@@ -43,27 +49,32 @@ export function SupplyInputForm({ farmId }: Props) {
   const [justAdded, setJustAdded] = useState<string | null>(null);
 
   const handleSubmit = () => {
-    const picked = PRODUCT_OPTIONS[Number(productIdx)];
-    const qtyNum = Math.max(0, parseInt(qty, 10) || 0);
+    const isCustom = productIdx === 'custom';
+    const picked = isCustom ? null : PRODUCT_OPTIONS[Number(productIdx)];
+    const productName = isCustom ? titleCaseProduct(customProduct) : picked?.product || '';
+    const qtyNum = Math.max(0, parseFloat(qty) || 0);
+    if (!productName) return;
     if (!qtyNum) return;
     const supply: FarmSupply = {
-      product: picked.product,
-      productAr: picked.productAr,
-      category: picked.category,
+      product: productName,
+      productAr: isCustom ? productName : picked?.productAr || productName,
+      category: isCustom ? 'other' : picked?.category || 'other',
       qty: qtyNum,
-      unit: picked.unit,
+      unit: isCustom ? customUnit : picked?.unit || 'kg',
       grade,
       confidence,
-      packaging: picked.packaging,
-      packagingAr: picked.packagingAr,
+      packaging: isCustom ? customPackaging : picked?.packaging || '5kg boxes',
+      packagingAr: isCustom ? customPackaging : picked?.packagingAr || 'صناديق 5 كجم',
       harvestDate: harvest,
     };
     addFarmSupply(farmId, supply);
-    setJustAdded(`${picked.product} · ${qtyNum}`);
+    setJustAdded(`${productName} · ${qtyNum}`);
     setTimeout(() => setJustAdded(null), 2400);
     setQty('100');
     setNotes('');
   };
+
+  const selectedOption = productIdx === 'custom' ? null : PRODUCT_OPTIONS[Number(productIdx)];
 
   return (
     <Card>
@@ -79,14 +90,35 @@ export function SupplyInputForm({ farmId }: Props) {
               {language === 'ar' ? p.productAr : p.product}
             </option>
           ))}
+          <option value="custom">{language === 'ar' ? 'منتج آخر' : 'Custom product'}</option>
         </Select>
+        {productIdx === 'custom' ? (
+          <Input
+            label={language === 'ar' ? 'اسم المنتج' : 'Product name'}
+            value={customProduct}
+            onChange={(e) => setCustomProduct(e.target.value)}
+            placeholder={language === 'ar' ? 'مثال: مانجو' : 'Example: Mangoes'}
+          />
+        ) : null}
         <Input
           label={t('farmer_supply_qty')}
           type="number"
-          min={1}
+          min={0.01}
+          step="0.01"
           value={qty}
           onChange={(e) => setQty(e.target.value)}
         />
+        {productIdx === 'custom' ? (
+          <Select
+            label={language === 'ar' ? 'الوحدة' : 'Unit'}
+            value={customUnit}
+            onChange={(e) => setCustomUnit(e.target.value as 'kg' | 'boxes' | 'jars')}
+          >
+            <option value="kg">{t('unit_kg' as any)}</option>
+            <option value="boxes">{t('unit_boxes' as any)}</option>
+            <option value="jars">{t('unit_jars' as any)}</option>
+          </Select>
+        ) : null}
         <Input
           label={t('farmer_supply_harvest')}
           value={harvest}
@@ -112,11 +144,14 @@ export function SupplyInputForm({ farmId }: Props) {
         <Input
           label={t('farmer_supply_packaging')}
           value={
-            language === 'ar'
-              ? PRODUCT_OPTIONS[Number(productIdx)].packagingAr
-              : PRODUCT_OPTIONS[Number(productIdx)].packaging
+            productIdx === 'custom'
+              ? customPackaging
+              : language === 'ar'
+                ? selectedOption?.packagingAr
+                : selectedOption?.packaging
           }
-          disabled
+          onChange={(e) => setCustomPackaging(e.target.value)}
+          disabled={productIdx !== 'custom'}
         />
         <div className="md:col-span-2 lg:col-span-3">
           <Input
@@ -136,3 +171,14 @@ export function SupplyInputForm({ farmId }: Props) {
     </Card>
   );
 }
+
+function titleCaseProduct(value: string): string {
+  return value
+    .trim()
+    .replace(/\s+/g, ' ')
+    .split(' ')
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
+
