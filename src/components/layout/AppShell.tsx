@@ -22,7 +22,6 @@ export function AppShell() {
           {page === 'buyer' ? <BuyerDashboard /> : null}
           {page === 'farmer' ? <FarmerDashboard /> : null}
           {page === 'operator' ? <OperatorDashboard /> : null}
-          {page === 'validation' ? <FieldValidation /> : null}
           {page === 'impact' ? <ImpactDashboard /> : null}
           {page === 'business' ? <BusinessModel /> : null}
           {page === 'pitch' ? <PitchMode /> : null}

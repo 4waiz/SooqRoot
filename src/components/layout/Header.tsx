@@ -28,7 +28,6 @@ import {
 } from '../../lib/groq';
 
 const NAV_PAGES: { key: Page; labelKey: Parameters<ReturnType<typeof useTranslation>['t']>[0] }[] = [
-  { key: 'validation', labelKey: 'nav_validation' },
   { key: 'impact', labelKey: 'nav_impact' },
   { key: 'business', labelKey: 'nav_business' },
   { key: 'pitch', labelKey: 'nav_pitch' },
@@ -88,23 +87,23 @@ export function Header() {
 
         <div className="ms-auto flex items-center gap-2">
           {/* Role selector */}
-          <div className="hidden md:flex items-center gap-1 rounded-xl border border-charcoal-200 dark:border-charcoal-700 p-1">
+          <div className="hidden md:flex items-center gap-2 mr-6">
             <RoleTab
               active={role === 'buyer'}
               onClick={() => setRole('buyer')}
-              icon={<ShoppingBasket size={14} />}
+              icon={<ShoppingBasket size={18} />}
               label={t('role_buyer')}
             />
             <RoleTab
               active={role === 'farmer'}
               onClick={() => setRole('farmer')}
-              icon={<Tractor size={14} />}
+              icon={<Tractor size={18} />}
               label={t('role_farmer')}
             />
             <RoleTab
               active={role === 'operator'}
               onClick={() => setRole('operator')}
-              icon={<Settings2 size={14} />}
+              icon={<Settings2 size={18} />}
               label={t('role_operator')}
             />
           </div>
@@ -186,7 +185,7 @@ export function Header() {
                   setRole('buyer');
                   setMenuOpen(false);
                 }}
-                icon={<ShoppingBasket size={14} />}
+                icon={<ShoppingBasket size={18} />}
                 label={t('role_buyer')}
               />
               <RoleTab
@@ -195,7 +194,7 @@ export function Header() {
                   setRole('farmer');
                   setMenuOpen(false);
                 }}
-                icon={<Tractor size={14} />}
+                icon={<Tractor size={18} />}
                 label={t('role_farmer')}
               />
               <RoleTab
@@ -204,7 +203,7 @@ export function Header() {
                   setRole('operator');
                   setMenuOpen(false);
                 }}
-                icon={<Settings2 size={14} />}
+                icon={<Settings2 size={18} />}
                 label={t('role_operator')}
               />
             </div>
@@ -306,10 +305,10 @@ function RoleTab({
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition ${
+      className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 ${
         active
-          ? 'bg-brand-600 text-white shadow-soft'
-          : 'text-charcoal-600 dark:text-charcoal-300 hover:bg-charcoal-100 dark:hover:bg-charcoal-800'
+          ? 'bg-brand-600 text-white shadow-lg shadow-brand-600/20 scale-105'
+          : 'bg-white dark:bg-charcoal-800 text-charcoal-600 dark:text-charcoal-300 border-2 border-charcoal-100 dark:border-charcoal-700 hover:border-brand-200 dark:hover:border-brand-900/50 hover:bg-brand-50 dark:hover:bg-brand-900/10'
       }`}
     >
       {icon}
