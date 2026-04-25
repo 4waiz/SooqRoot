@@ -283,6 +283,15 @@ export const SEED_BUYERS: Buyer[] = [
     type: 'Restaurant Group',
     typeAr: 'مجموعة مطاعم',
   },
+  {
+    id: 'buyer-lulu',
+    name: 'Lulu Group',
+    nameAr: 'مجموعة اللولو',
+    location: 'Abu Dhabi',
+    locationAr: 'أبوظبي',
+    type: 'Hypermarket Chain',
+    typeAr: 'سلسلة هايبر ماركت',
+  },
 ];
 
 export const SEED_DEMANDS: Demand[] = [
