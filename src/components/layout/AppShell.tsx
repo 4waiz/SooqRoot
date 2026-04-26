@@ -9,6 +9,7 @@ import { BusinessModel } from '../business/BusinessModel';
 import { PitchMode } from '../pitch/PitchMode';
 import { Header } from './Header';
 import { Footer } from './Footer';
+import { LiveChat } from '../chat/LiveChat';
 
 export function AppShell() {
   const { page } = useApp();
@@ -28,6 +29,7 @@ export function AppShell() {
         </div>
       </main>
       <Footer />
+      <LiveChat />
     </div>
   );
 }

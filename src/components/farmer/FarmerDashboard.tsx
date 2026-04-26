@@ -7,6 +7,7 @@ import { SupplyInputForm } from './SupplyInputForm';
 import { FarmerCopilot } from './FarmerCopilot';
 import { HarvestInstructions } from './HarvestInstructions';
 import { QualityPackagingGuide } from './QualityPackagingGuide';
+import { AIScan } from './AIScan';
 
 export function FarmerDashboard() {
   const { t, language } = useTranslation();
@@ -48,6 +49,8 @@ export function FarmerDashboard() {
         <SupplyInputForm farmId={farm.id} />
         <FarmerCopilot farm={farm} />
       </div>
+
+      <AIScan />
 
       <HarvestInstructions farmId={farm.id} />
 

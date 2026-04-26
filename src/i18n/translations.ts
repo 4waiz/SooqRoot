@@ -303,6 +303,53 @@ export const en = {
   pitch_final_body: 'SooqRoot helps farmers sell smarter, not alone.',
 
 
+  // Live Chat
+  chat_title: 'SooqRoot Support',
+  chat_subtitle: 'Online · Replies in seconds',
+  chat_placeholder: 'Type your question…',
+  chat_send: 'Send',
+  chat_open: 'Chat with us',
+  chat_greeting:
+    'Hi! I\'m the SooqRoot assistant. Ask me about how the platform works, pricing, farmers, buyers, or AI scans.',
+  chat_suggested: 'Suggested questions',
+  chat_typing: 'Typing…',
+  chat_fallback:
+    'I don\'t have an answer ready for that. A team member will follow up by email. Meanwhile, try one of the suggestions below.',
+  chat_disclaimer: 'Demo assistant — answers are pre-curated for the pilot.',
+
+  // AI Scans
+  scan_section_title: 'AI Field Scans',
+  scan_section_subtitle:
+    'Snap or upload a photo from the field. Our vision model checks crop health and grade in seconds.',
+  scan_pest_title: 'Pest & Disease Scan',
+  scan_pest_desc:
+    'Detect early signs of pests, fungal infection, or nutrient deficiency before they spread.',
+  scan_quality_title: 'Quality & Grade Scan',
+  scan_quality_desc:
+    'Estimate produce grade, color uniformity, and packing readiness against buyer specifications.',
+  scan_upload: 'Upload photo',
+  scan_camera: 'Use camera',
+  scan_capture: 'Capture',
+  scan_retake: 'Retake',
+  scan_analyze: 'Analyze with AI',
+  scan_analyzing: 'Analyzing image…',
+  scan_resultTitle: 'AI Diagnosis',
+  scan_confidence: 'Model confidence',
+  scan_recommendation: 'Recommended action',
+  scan_severity: 'Severity',
+  scan_severity_low: 'Low',
+  scan_severity_medium: 'Medium',
+  scan_severity_high: 'High',
+  scan_grade: 'Estimated grade',
+  scan_color: 'Color uniformity',
+  scan_size: 'Size consistency',
+  scan_defects: 'Surface defects',
+  scan_marketReady: 'Market readiness',
+  scan_close: 'New scan',
+  scan_cameraDenied: 'Camera permission was denied. You can still upload a photo.',
+  scan_dropHint: 'Drag a photo here, or click to browse',
+  scan_demoBadge: 'Demo model · v0.4',
+
   // Shared
   close: 'Close',
   back: 'Back',
@@ -597,6 +644,51 @@ export const ar: Record<keyof typeof en, string> = {
   pitch_final_title: 'الخلاصة',
   pitch_final_body: 'سوق روت يساعد المزارعين على البيع بذكاء، وليس بمفردهم.',
 
+
+  chat_title: 'دعم سوق روت',
+  chat_subtitle: 'متصل · يرد خلال ثوانٍ',
+  chat_placeholder: 'اكتب سؤالك…',
+  chat_send: 'إرسال',
+  chat_open: 'تواصل معنا',
+  chat_greeting:
+    'مرحباً! أنا مساعد سوق روت. اسألني عن طريقة عمل المنصة، الأسعار، المزارعين، المشترين، أو فحوصات الذكاء الاصطناعي.',
+  chat_suggested: 'أسئلة مقترحة',
+  chat_typing: 'يكتب…',
+  chat_fallback:
+    'لا تتوفر لدي إجابة جاهزة عن هذا السؤال. سيتواصل معك فريقنا بالبريد الإلكتروني. جرّب أحد الاقتراحات بالأسفل.',
+  chat_disclaimer: 'مساعد تجريبي — الإجابات محضّرة مسبقاً لأغراض العرض.',
+
+  scan_section_title: 'فحوصات الذكاء الاصطناعي الميدانية',
+  scan_section_subtitle:
+    'التقط صورة أو ارفع واحدة من الحقل. نموذج الرؤية يفحص صحة المحصول والجودة خلال ثوانٍ.',
+  scan_pest_title: 'فحص الآفات والأمراض',
+  scan_pest_desc:
+    'اكتشف العلامات المبكرة للآفات والإصابات الفطرية ونقص العناصر قبل انتشارها.',
+  scan_quality_title: 'فحص الجودة والدرجة',
+  scan_quality_desc:
+    'قدّر درجة المنتج، انتظام اللون، والجاهزية للتعبئة وفق مواصفات المشتري.',
+  scan_upload: 'رفع صورة',
+  scan_camera: 'استخدام الكاميرا',
+  scan_capture: 'التقاط',
+  scan_retake: 'إعادة الالتقاط',
+  scan_analyze: 'حلّل بالذكاء الاصطناعي',
+  scan_analyzing: 'جارٍ تحليل الصورة…',
+  scan_resultTitle: 'تشخيص الذكاء الاصطناعي',
+  scan_confidence: 'ثقة النموذج',
+  scan_recommendation: 'الإجراء الموصى به',
+  scan_severity: 'الشدة',
+  scan_severity_low: 'منخفضة',
+  scan_severity_medium: 'متوسطة',
+  scan_severity_high: 'مرتفعة',
+  scan_grade: 'الدرجة المقدّرة',
+  scan_color: 'انتظام اللون',
+  scan_size: 'تجانس الحجم',
+  scan_defects: 'العيوب السطحية',
+  scan_marketReady: 'الجاهزية للسوق',
+  scan_close: 'فحص جديد',
+  scan_cameraDenied: 'تم رفض إذن الكاميرا. يمكنك رفع صورة بدلاً من ذلك.',
+  scan_dropHint: 'اسحب صورة هنا، أو اضغط للاختيار',
+  scan_demoBadge: 'نموذج تجريبي · إصدار 0.4',
 
   close: 'إغلاق',
   back: 'رجوع',
