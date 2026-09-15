@@ -1,4 +1,3 @@
-import React from 'react';
 import { Award, Building2, Calendar, Sparkles, Trophy } from 'lucide-react';
 import { Badge, Card, CardHeader, PageHeader } from '../components/ui';
 import { RECOGNITION } from '../data/analytics';

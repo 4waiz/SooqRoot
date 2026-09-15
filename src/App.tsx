@@ -1,4 +1,3 @@
-import React from 'react';
 import { HashRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { AppProvider, useStore } from './state/AppStore';
 import { AppLayout } from './components/layout/AppLayout';

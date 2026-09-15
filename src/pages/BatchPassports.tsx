@@ -12,7 +12,7 @@ import {
   Sprout,
 } from 'lucide-react';
 import { useStore } from '../state/AppStore';
-import { Badge, Button, Card, CardHeader, DataRow, Modal, PageHeader } from '../components/ui';
+import { Badge, Button, Card, DataRow, Modal, PageHeader } from '../components/ui';
 import { getProduct } from '../data/products';
 import { getFarm } from '../data/farms';
 import { getBuyer } from '../data/buyers';

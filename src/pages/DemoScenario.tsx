@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowRight,
@@ -12,7 +11,6 @@ import {
   ShieldCheck,
   Sprout,
   TriangleAlert,
-  Truck,
 } from 'lucide-react';
 import { useStore } from '../state/AppStore';
 import { Badge, Card, CardHeader, PageHeader } from '../components/ui';

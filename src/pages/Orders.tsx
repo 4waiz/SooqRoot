@@ -1,12 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpDown, ChevronRight, Filter, PackageCheck, Search } from 'lucide-react';
+import { ChevronRight, Filter, PackageCheck, Search } from 'lucide-react';
 import { useStore } from '../state/AppStore';
 import {
   Badge,
   Card,
   EmptyState,
-  HEALTH_TONE,
   HealthDot,
   PageHeader,
   Progress,

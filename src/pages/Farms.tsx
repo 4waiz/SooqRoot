@@ -1,11 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, LayoutGrid, List, MapPin, Search, Sprout } from 'lucide-react';
 import { useStore } from '../state/AppStore';
 import {
   Badge,
   Card,
-  CardHeader,
   EmptyState,
   HEALTH_TONE,
   HealthDot,
@@ -15,7 +14,7 @@ import {
 } from '../components/ui';
 import { getProduct } from '../data/products';
 import { allocatable } from '../lib/engine';
-import { formatDate, healthLabel } from '../lib/metrics';
+import { healthLabel } from '../lib/metrics';
 import { Farm } from '../types';
 
 export function Farms() {

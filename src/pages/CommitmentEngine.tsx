@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Check,
@@ -24,7 +24,6 @@ import {
   Progress,
   Select,
 } from '../components/ui';
-import { Ring } from '../components/ui/Metric';
 import { PRODUCTS, getProduct } from '../data/products';
 import { FARM_MAP } from '../data/farms';
 import { networkWithout } from '../data/orders';

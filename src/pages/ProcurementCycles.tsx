@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CalendarClock, Check, Layers, PackageCheck } from 'lucide-react';
 import { useStore } from '../state/AppStore';
-import { Badge, Card, CardHeader, DataRow, PageHeader, Progress } from '../components/ui';
+import { Badge, Card, CardHeader, PageHeader, Progress } from '../components/ui';
 import { getProduct } from '../data/products';
 import { buyerName } from '../data/buyers';
 import { formatAed, formatDate } from '../lib/metrics';

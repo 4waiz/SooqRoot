@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Activity, Filter, Layers, Network, Sprout } from 'lucide-react';
 import {
@@ -21,7 +21,6 @@ import {
   HealthDot,
   PageHeader,
   Progress,
-  Segmented,
 } from '../components/ui';
 import { NetworkLegend, NetworkMap } from '../components/viz/NetworkMap';
 import { ChartTooltip } from '../components/viz/ChartTooltip';
@@ -30,7 +29,7 @@ import { allocatable } from '../lib/engine';
 import { formatDate, healthLabel } from '../lib/metrics';
 
 export function SupplyTwin() {
-  const { farms, buyers, orders, metrics } = useStore();
+  const { farms, buyers, orders } = useStore();
   const [selected, setSelected] = useState<string | null>(null);
   const [productFilter, setProductFilter] = useState<'all' | string>('all');
 

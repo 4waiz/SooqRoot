@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Check,
@@ -31,7 +31,7 @@ import { formatDate, formatTime, relativeTime } from '../lib/metrics';
 import { CopilotMessage } from '../types';
 
 export function FarmerCopilot() {
-  const { farms, orders } = useStore();
+  const { orders } = useStore();
   const [threadId, setThreadId] = useState(COPILOT_THREADS[0].id);
   const [messages, setMessages] = useState<CopilotMessage[]>(COPILOT_MESSAGES);
   const [lang, setLang] = useState<'en' | 'ar'>('en');

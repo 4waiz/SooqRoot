@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Activity,
@@ -22,7 +22,6 @@ import {
   BarChart,
   CartesianGrid,
   Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -33,7 +32,6 @@ import { Badge, Card, CardHeader, HEALTH_HEX, HEALTH_TONE, HealthDot, Progress }
 import { Metric, Ring } from '../components/ui/Metric';
 import { NetworkLegend, NetworkMap } from '../components/viz/NetworkMap';
 import { getProduct } from '../data/products';
-import { buyerName } from '../data/buyers';
 import { farmName } from '../data/farms';
 import { MONTHLY } from '../data/analytics';
 import { FULFILMENT_JOBS, HARVEST_EVENTS } from '../data/operations';

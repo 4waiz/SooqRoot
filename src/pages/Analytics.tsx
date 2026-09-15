@@ -9,7 +9,6 @@ import {
   Cell,
   Legend,
   Line,
-  LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -18,7 +17,7 @@ import {
   YAxis,
 } from 'recharts';
 import { useStore } from '../state/AppStore';
-import { Badge, Card, CardHeader, PageHeader, Progress, Segmented } from '../components/ui';
+import { Card, CardHeader, PageHeader, Progress, Segmented } from '../components/ui';
 import { ChartTooltip } from '../components/viz/ChartTooltip';
 import { CATEGORY_MIX, MONTHLY } from '../data/analytics';
 import { getProduct } from '../data/products';
