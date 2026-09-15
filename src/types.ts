@@ -1,175 +1,361 @@
-export type Language = 'ar' | 'en';
+/* ============================================================
+   SooqRoot — domain model
+   The Procurement Operating System for UAE Local Food
+   ============================================================ */
+
 export type Theme = 'light' | 'dark';
-export type Role = 'landing' | 'buyer' | 'farmer' | 'operator';
-export type Page =
-  | 'landing'
-  | 'buyer'
-  | 'farmer'
-  | 'operator'
-  | 'validation'
-  | 'impact'
-  | 'business'
-  | 'pitch';
 
-export type Confidence = 'Confirmed' | 'Probable' | 'Stretch';
-export type Grade = 'A' | 'B';
-export type ProductCategory = 'vegetable' | 'fruit' | 'fish' | 'honey' | 'leafygreen' | 'other';
+export type Grade = 'A' | 'B' | 'Mixed';
+export type Unit = 'kg' | 'crates' | 'boxes' | 'jars';
+export type Emirate = 'Abu Dhabi' | 'Dubai' | 'Sharjah' | 'Al Ain Region';
 
-export type OrderStatus =
-  | 'Request'
-  | 'Structured'
-  | 'Allocated'
-  | 'HarvestInstructed'
-  | 'Packed'
-  | 'PickedUp'
-  | 'Delivered';
+export type HealthStatus = 'healthy' | 'attention' | 'risk';
 
-export const ORDER_STATUSES: OrderStatus[] = [
-  'Request',
-  'Structured',
-  'Allocated',
-  'HarvestInstructed',
-  'Packed',
-  'PickedUp',
-  'Delivered',
-];
+export type ProductCategory =
+  | 'vegetable'
+  | 'leafygreen'
+  | 'fruit'
+  | 'herb'
+  | 'date'
+  | 'fish'
+  | 'honey';
 
-export interface Farm {
+/* ---------------- Products ---------------- */
+
+export interface Product {
   id: string;
   name: string;
   nameAr: string;
-  location: string;
-  locationAr: string;
-  distanceKm: number;
-  photo: string;
-  supplies: FarmSupply[];
-  confidenceLevel: Confidence;
+  category: ProductCategory;
+  unit: Unit;
+  /** Indicative demo reference price, AED per unit */
+  refPrice: number;
+  /** Days from commitment to harvest readiness */
+  leadDays: number;
+  /** Usable days between harvest and delivery before quality degrades */
+  shelfLifeDays: number;
+  emoji: string;
+  /** Tailwind-ish hex used for chart series */
+  color: string;
 }
 
-export interface FarmSupply {
-  product: string;
-  productAr: string;
-  category: ProductCategory;
-  qty: number;
-  unit: 'kg' | 'boxes' | 'jars';
-  grade: Grade;
-  confidence: Confidence;
-  packaging: string;
-  packagingAr: string;
-  harvestDate?: string;
+/* ---------------- Supply network ---------------- */
+
+export interface FarmCapacityLine {
+  productId: string;
+  /** Expected harvest volume in the current window */
+  expectedHarvest: number;
+  /** Already committed to orders */
+  committed: number;
+  /** Quality / shrinkage reserve held back from commitment */
+  reserve: number;
+  unit: Unit;
+  harvestWindowStart: string; // ISO date
+  harvestWindowEnd: string; // ISO date
+  gradeProbability: { A: number; B: number };
+  packaging: string[];
 }
+
+export interface Farm {
+  id: string;
+  code: string;
+  name: string;
+  nameAr: string;
+  area: string;
+  areaAr: string;
+  emirate: Emirate;
+  /** Normalised 0-100 coordinates on the schematic network canvas */
+  x: number;
+  y: number;
+  distanceKm: number;
+  hectares: number;
+  growingMethod: 'Open field' | 'Greenhouse' | 'Hydroponic' | 'Net house' | 'Aquaculture' | 'Apiary';
+  certifications: string[];
+  preferredLanguage: 'Arabic' | 'English' | 'Urdu';
+  contactName: string;
+  /** Historical fulfilment rate, 0-100 */
+  fulfilmentRate: number;
+  /** Quality score, 0-100 */
+  qualityScore: number;
+  /** Reliability index, 0-100 */
+  reliability: number;
+  joinedOn: string;
+  status: HealthStatus;
+  capacity: FarmCapacityLine[];
+}
+
+/* ---------------- Buyers & demand ---------------- */
+
+export type BuyerSegment = 'Hotel' | 'Catering' | 'Retail' | 'Restaurant Group' | 'Institutional';
 
 export interface Buyer {
   id: string;
   name: string;
   nameAr: string;
-  location: string;
-  locationAr: string;
-  type: string;
-  typeAr: string;
+  segment: BuyerSegment;
+  emirate: Emirate;
+  x: number;
+  y: number;
+  contactName: string;
+  localTargetPct: number;
+  monthlySpendAed: number;
+  since: string;
+  logoTone: string;
 }
+
+export type DemandStatus = 'draft' | 'structured' | 'approved' | 'in-cycle' | 'archived';
 
 export interface DemandLine {
   id: string;
-  product: string;
-  productAr: string;
-  category: ProductCategory;
+  productId: string;
   qty: number;
-  unit: 'kg' | 'boxes' | 'jars';
+  unit: Unit;
   grade: Grade;
   packaging: string;
-  packagingAr: string;
-  deliveryWindow: string;
-  deliveryWindowAr: string;
-  locationPref?: string;
-  locationPrefAr?: string;
+  requiredBy: string; // ISO date
+  frequency: 'One-off' | 'Weekly' | 'Twice weekly' | 'Daily';
+  deliveryLocation: string;
+  preferredOrigin: string;
+  notes?: string;
 }
 
 export interface Demand {
   id: string;
+  ref: string;
   buyerId: string;
-  rawText: string;
-  createdAt: number;
+  title: string;
+  rawText?: string;
+  createdAt: string;
+  status: DemandStatus;
   lines: DemandLine[];
-  status: OrderStatus;
-  aiInterpretation?: string;
-  aiInterpretationAr?: string;
+  /** Populated when structured by the AI demand translator */
   aiConfidence?: number;
+  aiNotes?: string[];
+  source: 'Portal' | 'AI translator' | 'Email' | 'Contract' | 'Demo';
 }
 
-export interface AllocationPart {
-  farmId: string;
-  qty: number;
-  confidence: Confidence;
-  batchId: string;
-}
+/* ---------------- Procurement cycles ---------------- */
 
-export interface AllocationLine {
-  demandLineId: string;
-  product: string;
-  productAr: string;
-  requestedQty: number;
-  unit: 'kg' | 'boxes' | 'jars';
-  parts: AllocationPart[];
-  filledQty: number;
-  shortfall: number;
-  backupFarmIds: string[];
-  substitutes: SubstituteSuggestion[];
-}
+export type CycleStage =
+  | 'Demand capture'
+  | 'Commitment'
+  | 'Harvest'
+  | 'Fulfilment'
+  | 'Proof';
 
-export interface SubstituteSuggestion {
-  product: string;
-  productAr: string;
-  availableQty: number;
-  reason: string;
-  reasonAr: string;
-  farmIds: string[];
-}
-
-export interface Allocation {
+export interface ProcurementCycle {
   id: string;
-  demandId: string;
-  createdAt: number;
-  lines: AllocationLine[];
-  risk: RiskScore;
+  ref: string;
+  name: string;
+  window: string;
+  opensOn: string;
+  closesOn: string;
+  stage: CycleStage;
+  demandIds: string[];
+  orderIds: string[];
+  committedValueAed: number;
+  demandValueAed: number;
+  coveragePct: number;
+  participatingFarms: number;
 }
 
-export type RiskLevel = 'Low' | 'Medium' | 'High';
+/* ---------------- Orders & commitments ---------------- */
 
-export interface RiskScore {
-  level: RiskLevel;
-  score: number;
-  reasons: string[];
-  reasonsAr: string[];
-  mitigations: string[];
-  mitigationsAr: string[];
-}
+export type OrderStatus =
+  | 'Demand received'
+  | 'Committed'
+  | 'Harvest scheduled'
+  | 'In fulfilment'
+  | 'Delivered'
+  | 'At risk';
 
-export interface HarvestInstruction {
-  batchId: string;
+export const ORDER_FLOW: OrderStatus[] = [
+  'Demand received',
+  'Committed',
+  'Harvest scheduled',
+  'In fulfilment',
+  'Delivered',
+];
+
+export interface CommitmentAllocation {
+  id: string;
   farmId: string;
-  farmName: string;
-  farmNameAr: string;
-  buyerName: string;
-  buyerNameAr: string;
-  product: string;
-  productAr: string;
   qty: number;
-  unit: 'kg' | 'boxes' | 'jars';
+  unit: Unit;
+  score: number;
+  role: 'primary' | 'backup';
+  confidence: number;
+  harvestDate: string;
+  batchId: string;
+  rationale: string[];
+}
+
+export interface Order {
+  id: string;
+  ref: string;
+  buyerId: string;
+  cycleId: string;
+  productId: string;
+  qty: number;
+  unit: Unit;
   grade: Grade;
   packaging: string;
-  packagingAr: string;
-  harvestDay: string;
-  harvestDayAr: string;
-  pickupTime: string;
-  pickupTimeAr: string;
+  requiredBy: string;
+  createdAt: string;
+  status: OrderStatus;
+  valueAed: number;
+  /** 0-100 — probability the order fills from local supply */
+  confidence: number;
+  committedQty: number;
+  deliveredQty: number;
+  allocations: CommitmentAllocation[];
+  health: HealthStatus;
+  deliveryLocation: string;
 }
+
+/* ---------------- Operations ---------------- */
+
+export type ExceptionType =
+  | 'Shortfall'
+  | 'Quality'
+  | 'Logistics'
+  | 'Weather'
+  | 'Capacity'
+  | 'Documentation';
+
+export type ExceptionSeverity = 'critical' | 'warning' | 'info';
+
+export interface ExceptionItem {
+  id: string;
+  ref: string;
+  type: ExceptionType;
+  severity: ExceptionSeverity;
+  title: string;
+  detail: string;
+  orderId?: string;
+  farmId?: string;
+  raisedAt: string;
+  owner: string;
+  status: 'open' | 'mitigating' | 'resolved';
+  recommendedAction: string;
+  impactAed: number;
+}
+
+export type FulfilmentStage =
+  | 'Harvest'
+  | 'Grading'
+  | 'Packing'
+  | 'Collection'
+  | 'Consolidation'
+  | 'Delivery';
+
+export interface FulfilmentJob {
+  id: string;
+  batchId: string;
+  orderId: string;
+  farmId: string;
+  productId: string;
+  qty: number;
+  unit: Unit;
+  stage: FulfilmentStage;
+  scheduledFor: string;
+  vehicle: string;
+  driver: string;
+  temperatureC: number;
+  progressPct: number;
+  health: HealthStatus;
+}
+
+export interface BatchPassport {
+  id: string;
+  batchId: string;
+  orderId: string;
+  farmId: string;
+  buyerId: string;
+  productId: string;
+  qty: number;
+  unit: Unit;
+  grade: Grade;
+  harvestedOn: string;
+  packedOn: string;
+  deliveredOn?: string;
+  distanceKm: number;
+  co2SavedKg: number;
+  waterMethod: string;
+  certifications: string[];
+  checkpoints: { label: string; at: string; by: string; note?: string }[];
+  verificationHash: string;
+}
+
+/* ---------------- Intelligence ---------------- */
+
+export interface MonthPoint {
+  month: string;
+  localPct: number;
+  targetPct: number;
+  importedAed: number;
+  localAed: number;
+  fillRate: number;
+  commitments: number;
+  co2SavedKg: number;
+  waterSavedM3: number;
+  farmIncomeAed: number;
+}
+
+export interface CategoryMix {
+  category: string;
+  localPct: number;
+  volumeKg: number;
+  color: string;
+}
+
+export interface ActivityEvent {
+  id: string;
+  at: string;
+  kind: 'commitment' | 'harvest' | 'delivery' | 'demand' | 'exception' | 'farm' | 'proof';
+  title: string;
+  detail: string;
+  actor: string;
+}
+
+export interface HarvestEvent {
+  id: string;
+  date: string;
+  farmId: string;
+  productId: string;
+  qty: number;
+  unit: Unit;
+  orderId?: string;
+  status: 'scheduled' | 'in-progress' | 'complete';
+}
+
+/* ---------------- Copilot ---------------- */
 
 export interface CopilotMessage {
   id: string;
-  role: 'user' | 'copilot';
+  threadId: string;
+  at: string;
+  direction: 'outbound' | 'inbound';
+  channel: 'WhatsApp' | 'SMS' | 'In-app';
   text: string;
-  reasoning?: string;
-  suggestedAction?: string;
-  confidence?: number;
+  textAr?: string;
+  status: 'sent' | 'delivered' | 'read' | 'replied';
+}
+
+export interface CopilotThread {
+  id: string;
+  farmId: string;
+  subject: string;
+  updatedAt: string;
+  unread: number;
+  intent: 'Commitment request' | 'Harvest instruction' | 'Quality note' | 'Logistics' | 'Onboarding';
+}
+
+/* ---------------- Session ---------------- */
+
+export interface DemoSession {
+  username: string;
+  displayName: string;
+  role: string;
+  loggedInAt: string;
 }

@@ -1,106 +1,121 @@
 # SooqRoot
 
-**One order. Many farms. Confirmed before harvest.**
+**The Procurement Operating System for UAE Local Food**
 
-SooqRoot is an Arabic-first AI-assisted farm-to-market coordination platform that helps buyers place advance produce demand, helps farmers understand what the market needs, pools nearby farms when one farm cannot meet volume alone, and allocates orders before harvest.
+> One Order. Many Farms. Confirmed Before Harvest.
 
-Built for the UAE agriculture innovation hackathon.
+SooqRoot converts commercial buyer demand into pre-harvest commitments across UAE farms,
+intelligently coordinates fulfilment, and gives buyers auditable proof of local sourcing.
 
-## Stack
+```
+BUYER DEMAND → SOOQROOT → FARM NETWORK → PRE-HARVEST COMMITMENT → FULFILMENT → PROOF
+```
 
-- React 18 + TypeScript
-- Tailwind CSS
-- lucide-react icons
-- recharts for impact charts
-- No backend, no API keys, no external AI — all logic runs locally with rule-based simulation
+2nd place, Universities Hackathon: Farm to Market.
 
-## Run
+---
+
+## This repository is a demonstration build
+
+There is **no database and no backend**. Everything runs in the browser against a typed,
+centrally maintained demo dataset under `src/data/`. Every farm, buyer, volume, price and
+impact figure is illustrative and was authored for demonstration — a **Demo Data** indicator
+is visible throughout the interface, and Settings has a **Reset demo data** control.
+
+Sign-in is a demo gate, not a secure authentication service.
+
+| | |
+|---|---|
+| Username | `Awaiz` |
+| Password | `123` |
+
+The session lives in `sessionStorage` (closing the tab signs you out). Interface state and
+anything you create during a demo persists to `localStorage` so a demo survives a refresh.
+
+---
+
+## Running it
 
 ```bash
 npm install
-npm run dev
+npm run dev      # http://localhost:5173
 ```
-
-Open the URL shown in the terminal (default `http://localhost:5173`).
-
-For a production build:
 
 ```bash
-npm run build
-npm run preview
+npm run build    # type check + production build into dist/
+npm run preview  # serve the production build
 ```
 
-## Features
+---
 
-- **Arabic-first** UI with one-click toggle to English (layout flips RTL ↔ LTR).
-- **Dark / light mode** toggle with logo auto-swap.
-- **Role selector** — Buyer / Farmer / Operator — each with its own dashboard.
-- **Buyer dashboard**
-  - Free-text demand input
-  - AI demand translator (local rule-based parser with interpretation, confidence, reasoning)
-  - Structured demand table
-  - Order status tracker (Request → Delivered)
-  - Buyer metrics (local sourcing, shortfall, waste risk reduction)
-  - Buyer spec cards for each major product
-- **Farmer dashboard**
-  - Farm profile card
-  - Supply declaration form
-  - Arabic-first farmer copilot chat (advises on pool joining, grade, packaging, harvest timing)
-  - Harvest instruction cards
-  - Quality & packaging guide for vegetables / fish / honey
-- **Operator dashboard**
-  - Demand pool with per-order allocation
-  - Rule-based allocation engine (grade match → confidence → location → distance)
-  - Splits orders across multiple farms, with shortfall detection
-  - Backup farms and substitute advisor
-  - AI fulfillment risk score (with reasons and mitigations)
-  - Farm supply pool
-  - Local sourcing tracker
-  - Batch passport modal with QR-style traceability card
-  - Manual status advancement
-- **Field Validation** page — voice of vegetable, fish, and honey producers
-- **Impact / Investor dashboard** — realistic pilot numbers + charts
-- **Business Model** page — full BMC summary
-- **Pitch Mode** page — problem / solution / how / demo / why now / model / impact / final
+## What is in the product
 
-All state persists to `localStorage`. Use the "reset" button in the header to restore the demo seed data.
+| Area | Page | What it does |
+|---|---|---|
+| Overview | Control Tower | Network position: local procurement share, open commitments, match rate, at-risk orders, the farm/buyer network canvas, exceptions and upcoming harvests |
+| Procurement | Buyer Demand | Structured demand builder plus the **AI Demand Translator**, which reads a buyer's plain sentence and produces a commitable demand record |
+| | Procurement Cycles | Demand → Commitment → Harvest → Fulfilment → Proof, per window |
+| | Orders | The full order book with commitment coverage, value and delivery dates |
+| | Commitment Engine | Deterministic pre-harvest allocation across the farm network |
+| Supply Network | Farms / Farm profile | Capacity, harvest windows, grade probability, fulfilment history, certifications |
+| | Supply Digital Twin | Live model of what the network can deliver and which demand it already carries |
+| | Harvest Calendar | Every scheduled field operation behind the live commitments |
+| Operations | Exceptions | Shortfalls, capacity, quality, logistics and weather — each with a recommended action |
+| | Fulfilment | Harvest → grading → packing → collection → consolidation → delivery |
+| | Batch Passports | Auditable per-batch proof of origin, custody and impact |
+| Intelligence | Local Procurement Index | The measured local share of buyer spend against target |
+| | Analytics | Commitments, fill rate, farmgate income, producer performance |
+| | Sustainability Impact | CO₂e avoided, water saved, food miles, farmgate income |
+| Communication | Farmer Copilot | Commitments and harvest instructions to farms over WhatsApp/SMS, in Arabic or English |
+| System | Demo Scenario | An eight-step run sheet for presenting the product |
+| | Recognition | Awards, engagements and network milestones |
+| | Settings | Profile, appearance and demo data controls |
 
-## File map
+---
 
-```
-public/
-  darklogo.png          (used in light mode)
-  lightlogo.png         (used in dark mode)
-src/
-  types.ts
-  data/seed.ts          (farms, buyers, seed demands, impact stats)
-  i18n/translations.ts  (full AR + EN dictionary)
-  lib/
-    ai.ts               (parseDemandText, generateFarmerAdvice, risk, substitutes, harvest)
-    allocation.ts       (rule-based allocation engine + metrics)
-    storage.ts
-  context/AppContext.tsx
-  components/
-    ui/                 (Button, Card, Badge, Input, Modal, StatCard, EmptyState, FallbackImage)
-    layout/             (AppShell, Header, Footer)
-    landing/            Landing.tsx
-    buyer/              BuyerDashboard.tsx + pieces
-    farmer/             FarmerDashboard.tsx + pieces
-    operator/           OperatorDashboard.tsx + pieces
-    fieldvalidation/    FieldValidation.tsx
-    impact/             ImpactDashboard.tsx
-    business/           BusinessModel.tsx
-    pitch/              PitchMode.tsx
-```
+## The commitment engine
 
-## Demo script (60 seconds)
+`src/lib/engine.ts` is the core of the product and is **fully deterministic** — the same
+inputs always produce the same commitment pack, with no randomness anywhere in the
+allocation path.
 
-1. Start on the landing page → click **Enter Demo as Buyer**.
-2. Buyer pastes the placeholder demand → click **Translate Demand with AI** → structured lines appear with interpretation + confidence.
-3. Click **Submit Demand to Allocation** → auto-jumps to Operator.
-4. On Operator, click **Run Allocation** on any order → allocation splits across Al Akhdar / Desert Leaf / Oasis Fresh; any shortfall shows backup farms and substitute suggestions; risk card reveals reasons and mitigations.
-5. Open a **Batch Passport** from any allocation row.
-6. Switch role to **Farmer**, pick Al Akhdar → see harvest instructions from the allocation; ask the Arabic Copilot _"I have 300kg tomatoes next week"_ and watch it reference open demand.
-7. Browse **Impact**, **Business Model**, and **Pitch Mode** tabs.
+For a given order it scores every harvest window in the network on seven weighted signals:
 
-**SooqRoot helps farmers sell smarter, not alone.**
+| Signal | Weight |
+|---|---|
+| Reliability index | 22% |
+| Historical fulfilment | 20% |
+| Grade compatibility | 18% |
+| Collection distance | 14% |
+| Harvest date fit | 12% |
+| Packaging capability | 8% |
+| Uncommitted headroom | 6% |
+
+It then allocates under four explicit rules:
+
+- **Freshness gate** — a harvest window closing more than one product shelf life before the
+  delivery date cannot serve the order at all.
+- **Primary gate** — a farm whose window closes after the delivery date, or whose grade
+  probability is under 60%, is held as backup cover rather than primary supply.
+- **Concentration limit (23%)** — no single farm carries more than 23% of one order, but
+  never less than an even split across the eligible pool, so the cap can never cause an
+  under-fill.
+- **Backup cover limit (5%)** — no single backup farm stands behind more than 5% of an
+  order. Backup cover is contingent and does not consume network capacity.
+
+The demo order book in `src/data/orders.ts` is built by running this engine against a
+working copy of the farm network, so two orders can never commit the same kilogram twice and
+`expected harvest = committed + reserve + available` holds for every farm on every screen.
+
+---
+
+## Stack
+
+Vite 5 · React 18 · TypeScript · Tailwind CSS 3 · Recharts · lucide-react · React Router
+(hash routing, so the build runs from any static host with no rewrite rules).
+
+## Deployment
+
+Pushes to `main` build and publish to GitHub Pages via `.github/workflows/deploy.yml`.
+`vite.config.ts` sets `base: './'`, so the same build also runs from a domain root or any
+other static host.
