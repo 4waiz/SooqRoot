@@ -1,0 +1,20 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+
+  // SooqRoot is a static single-page demo: no server code, no database.
+  // This deploys the Vite build as a Workers static-asset site.
+  "name": "sooqroot",
+  "compatibility_date": "2026-09-24",
+  "account_id": "f8dc06dc6cc06ecfe499b2fdbcf45196",
+
+  "assets": {
+    "directory": "./dist",
+    // The app uses hash routing, but this keeps deep links working if it
+    // ever moves to history routing.
+    "not_found_handling": "single-page-application"
+  },
+
+  "routes": [{ "pattern": "sooqroot.kanbanstudios.ae", "custom_domain": true }],
+
+  "observability": { "enabled": true }
+}

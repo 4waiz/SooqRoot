@@ -13,3 +13,6 @@ dist-ssr
 
 # TypeScript incremental build cache
 *.tsbuildinfo
+
+# Wrangler local state
+.wrangler/
