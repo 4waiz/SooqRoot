@@ -21,11 +21,15 @@ import { Card, CardHeader, PageHeader, Progress, Segmented } from '../components
 import { ChartTooltip } from '../components/viz/ChartTooltip';
 import { CATEGORY_MIX, MONTHLY } from '../data/analytics';
 import { getProduct } from '../data/products';
+import { farmPhoto } from '../data/media';
+import { Avatar } from '../components/ui/Photo';
+import { useChartColors } from '../lib/theme';
 import { buyerName } from '../data/buyers';
 import { formatAed } from '../lib/metrics';
 
 export function Analytics() {
   const { orders, farms, metrics } = useStore();
+  const chart = useChartColors();
   const [range, setRange] = useState<'6' | '12'>('12');
 
   const data = useMemo(() => (range === '6' ? MONTHLY.slice(-6) : MONTHLY), [range]);
@@ -55,6 +59,7 @@ export function Analytics() {
       [...farms]
         .sort((a, b) => b.fulfilmentRate - a.fulfilmentRate)
         .map((f) => ({
+          id: f.id,
           name: f.code,
           fullName: f.name,
           fulfilment: f.fulfilmentRate,
@@ -104,8 +109,8 @@ export function Analytics() {
               <AreaChart data={data} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="an-commit" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#5ca87e" stopOpacity={0.35} />
-                    <stop offset="100%" stopColor="#5ca87e" stopOpacity={0} />
+                    <stop offset="0%" stopColor={chart.brand} stopOpacity={0.35} />
+                    <stop offset="100%" stopColor={chart.brand} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -119,7 +124,7 @@ export function Analytics() {
                   type="monotone"
                   dataKey="commitments"
                   name="Commitments"
-                  stroke="#5ca87e"
+                  stroke={chart.brand}
                   strokeWidth={2.2}
                   fill="url(#an-commit)"
                 />
@@ -128,7 +133,7 @@ export function Analytics() {
                   type="monotone"
                   dataKey="fillRate"
                   name="Fill rate %"
-                  stroke="#1d4733"
+                  stroke={chart.brandDeep}
                   strokeWidth={2}
                   dot={false}
                 />
@@ -156,9 +161,9 @@ export function Analytics() {
                 />
                 <Tooltip
                   content={<ChartTooltip formatter={(v) => formatAed(Number(v), { compact: true })} />}
-                  cursor={{ fill: 'rgba(60,140,97,0.05)' }}
+                  cursor={{ fill: chart.cursor }}
                 />
-                <Bar dataKey="farmIncomeAed" name="Farmgate income" fill="#2a714c" radius={[4, 4, 0, 0]} maxBarSize={26} />
+                <Bar dataKey="farmIncomeAed" name="Farmgate income" fill={chart.brand} radius={[4, 4, 0, 0]} maxBarSize={26} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -218,12 +223,12 @@ export function Analytics() {
                   content={<ChartTooltip formatter={(v) => formatAed(Number(v), { compact: true })} />}
                   cursor={{ fill: 'rgba(60,140,97,0.05)' }}
                 />
-                <Bar dataKey="value" name="Order value" fill="#3c8c61" radius={[0, 5, 5, 0]} maxBarSize={20} />
+                <Bar dataKey="value" name="Order value" fill={chart.brand} radius={[0, 5, 5, 0]} maxBarSize={20} />
               </BarChart>
             </ResponsiveContainer>
           </div>
           <p className="mt-2 rounded-lg bg-canvas-soft p-3 text-2xs leading-relaxed text-charcoal-500 dark:bg-charcoal-950 dark:text-charcoal-400">
-            No single buyer exceeds 35% of the order book — the same concentration discipline the
+            No single buyer exceeds 35% of the order book, the same concentration discipline the
             commitment engine applies on the supply side.
           </p>
         </Card>
@@ -268,9 +273,9 @@ export function Analytics() {
               <YAxis domain={[60, 100]} tickLine={false} axisLine={false} width={38} />
               <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(60,140,97,0.05)' }} />
               <Legend iconType="circle" iconSize={7} wrapperStyle={{ fontSize: 11, paddingTop: 6 }} />
-              <Bar dataKey="fulfilment" name="Fulfilment" fill="#2a714c" radius={[3, 3, 0, 0]} maxBarSize={14} />
-              <Bar dataKey="quality" name="Quality" fill="#5ca87e" radius={[3, 3, 0, 0]} maxBarSize={14} />
-              <Bar dataKey="reliability" name="Reliability" fill="#badec7" radius={[3, 3, 0, 0]} maxBarSize={14} />
+              <Bar dataKey="fulfilment" name="Fulfilment" fill={chart.brandDeep} radius={[3, 3, 0, 0]} maxBarSize={14} />
+              <Bar dataKey="quality" name="Quality" fill={chart.brand} radius={[3, 3, 0, 0]} maxBarSize={14} />
+              <Bar dataKey="reliability" name="Reliability" fill={chart.soft} radius={[3, 3, 0, 0]} maxBarSize={14} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -278,8 +283,9 @@ export function Analytics() {
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {farmPerformance.slice(0, 4).map((f) => (
               <div key={f.name} className="rounded-xl border border-charcoal-100 p-3 dark:border-charcoal-800">
-                <div className="flex items-center justify-between">
-                  <span className="truncate text-2xs font-bold text-charcoal-700 dark:text-charcoal-200">
+                <div className="flex items-center gap-2">
+                  <Avatar src={farmPhoto(f.id, 48, 48)} alt={f.fullName} size={22} />
+                  <span className="min-w-0 flex-1 truncate text-2xs font-bold text-charcoal-700 dark:text-charcoal-200">
                     {f.fullName}
                   </span>
                   <span className="font-mono text-2xs text-charcoal-400">{f.name}</span>

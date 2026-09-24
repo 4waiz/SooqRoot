@@ -5,8 +5,8 @@ import { PRODUCTS } from '../data/products';
    AI Demand Translator
    ------------------------------------------------------------
    Turns free-text buyer language into a structured demand line.
-   This runs entirely in the browser — no external model is
-   called — but the parse is genuine: it reads quantities,
+   This runs entirely in the browser, no external model is
+   called, but the parse is genuine: it reads quantities,
    multipliers, grade language, packaging, delivery cadence and
    the procurement window out of the sentence.
    ============================================================ */
@@ -349,7 +349,7 @@ export function translateDemand(text: string): TranslationResult {
     notes.push(`"${schedule.from}" resolved to a twice-weekly delivery schedule`);
   if (window.from === 'next month')
     notes.push(`Procurement window inferred as ${window.window} from "next month"`);
-  if (!product) notes.push('No crop matched — select one manually before approving');
+  if (!product) notes.push('No crop matched, select one manually before approving');
   if (packaging.confidence < 60) notes.push('Packaging defaulted to the buyer’s standard 5kg reusable crates');
 
   return {

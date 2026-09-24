@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ============================================================
-   SooqRoot — Procurement Operating System
+   SooqRoot. Procurement Operating System
    Design system: premium off-white canvas, SooqRoot green,
    subtle agricultural texture, information-dense but calm.
    ============================================================ */
@@ -30,7 +30,7 @@ body {
   @apply bg-charcoal-950 text-charcoal-100;
 }
 
-/* Subtle agricultural field texture — barely-there contour lines */
+/* Subtle agricultural field texture - barely-there contour lines */
 .sr-field-texture {
   background-image:
     repeating-linear-gradient(
@@ -78,7 +78,9 @@ body {
 @layer components {
   /* ---------- Surfaces ---------- */
   .sr-card {
-    @apply bg-white dark:bg-charcoal-900 border border-charcoal-100 dark:border-charcoal-800 rounded-2xl shadow-card;
+    /* min-w-0 so a card inside a grid or flex row can shrink below the
+       intrinsic width of a chart or table it contains. */
+    @apply min-w-0 bg-white dark:bg-charcoal-900 border border-charcoal-100 dark:border-charcoal-800 rounded-2xl shadow-card;
   }
   .sr-card-hover {
     @apply transition-all duration-300 ease-spring hover:shadow-lift hover:border-charcoal-200 dark:hover:border-charcoal-700;
@@ -170,7 +172,7 @@ body {
 
   /* ---------- Nav ---------- */
   .sr-nav-item {
-    @apply flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200
+    @apply flex min-h-[44px] items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200
            text-charcoal-600 dark:text-charcoal-400 hover:bg-charcoal-100 dark:hover:bg-charcoal-800 hover:text-charcoal-900 dark:hover:text-white;
   }
   .sr-nav-item-active {
@@ -235,4 +237,338 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ============================================================
+   Supply map (Leaflet)
+   ============================================================ */
+.sr-map .leaflet-container {
+  font-family: inherit;
+  background: #dfe6e0;
+}
+.dark .sr-map .leaflet-container {
+  background: #0d1110;
+}
+.sr-map .leaflet-control-attribution {
+  font-size: 9px;
+  line-height: 1.5;
+  padding: 1px 6px;
+  border-radius: 8px 0 0 0;
+  background: rgba(255, 255, 255, 0.72);
+  color: #5f666a;
+}
+.dark .sr-map .leaflet-control-attribution {
+  background: rgba(10, 12, 13, 0.72);
+  color: #848a8e;
+}
+.sr-map .leaflet-control-attribution a {
+  color: #2a714c;
+}
+.dark .sr-map .leaflet-control-attribution a {
+  color: #8dc6a4;
+}
+.sr-map .leaflet-pin-wrap,
+.sr-pin-wrap {
+  background: transparent;
+  border: 0;
+}
+
+/* farm pins */
+.sr-pin {
+  --pin: #3c8c61;
+  position: relative;
+  width: 46px;
+  height: 46px;
+  cursor: pointer;
+}
+.sr-pin--healthy { --pin: #3c8c61; }
+.sr-pin--attention { --pin: #c99c57; }
+.sr-pin--risk { --pin: #c4452f; }
+.sr-pin__halo {
+  position: absolute;
+  inset: 2px;
+  border-radius: 9999px;
+  background: var(--pin);
+  opacity: 0.45;
+  animation: srPinPulse 2.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+.sr-pin__photo {
+  position: absolute;
+  inset: 5px;
+  border-radius: 9999px;
+  background-color: var(--pin);
+  background-size: cover;
+  background-position: center;
+  border: 3px solid var(--pin);
+  box-shadow: 0 0 0 2px #ffffff, 0 8px 18px rgba(0, 0, 0, 0.38);
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 280ms;
+}
+.dark .sr-pin__photo {
+  box-shadow: 0 0 0 2px #121517, 0 8px 18px rgba(0, 0, 0, 0.6);
+}
+.sr-pin:hover .sr-pin__photo,
+.sr-pin.is-selected .sr-pin__photo {
+  transform: scale(1.22);
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 6px color-mix(in srgb, var(--pin) 45%, transparent),
+    0 12px 26px rgba(0, 0, 0, 0.45);
+}
+.sr-pin.is-selected .sr-pin__halo {
+  animation-duration: 1.5s;
+  opacity: 0.7;
+}
+.sr-pin__label {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translate(-50%, 1px);
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(13, 36, 25, 0.86);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+.sr-pin__label--buyer {
+  background: rgba(18, 21, 23, 0.9);
+  transform: translate(-50%, 3px);
+}
+@keyframes srPinPulse {
+  0% { transform: scale(0.75); opacity: 0.55; }
+  75%, 100% { transform: scale(1.75); opacity: 0; }
+}
+
+/* buyer delivery points */
+.sr-buyer {
+  position: relative;
+  width: 38px;
+  height: 38px;
+}
+.sr-buyer__photo {
+  position: absolute;
+  inset: 0;
+  border-radius: 11px;
+  background-color: #1e2224;
+  background-size: cover;
+  background-position: center;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.38);
+  transition: transform 280ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.dark .sr-buyer__photo {
+  border-color: #eceeee;
+}
+.sr-buyer:hover .sr-buyer__photo {
+  transform: scale(1.14);
+}
+.sr-buyer__badge {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+  border: 2px solid #ffffff;
+  background: #1e2224
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6'/%3E%3C/svg%3E")
+    center / 9px no-repeat;
+}
+
+/* consolidation hub */
+.sr-hub {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+}
+.sr-hub span {
+  width: 17px;
+  height: 17px;
+  transform: rotate(45deg);
+  border-radius: 4px;
+  background: #b07f3e;
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35), 0 0 0 6px rgba(176, 127, 62, 0.25);
+}
+
+/* flows */
+.sr-flow {
+  animation: srFlowDash 1.2s linear infinite;
+  transition: opacity 300ms;
+}
+.sr-flow-glow {
+  transition: opacity 300ms;
+}
+@keyframes srFlowDash {
+  to { stroke-dashoffset: -32; }
+}
+.sr-particle {
+  fill: #ffffff;
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 6px rgba(140, 198, 164, 0.8));
+  transition: opacity 300ms;
+}
+.sr-map--map .sr-particle {
+  fill: #1d4733;
+  filter: drop-shadow(0 0 3px rgba(42, 113, 76, 0.55));
+}
+.dark .sr-map--map .sr-particle {
+  fill: #d8f3e2;
+  filter: drop-shadow(0 0 4px rgba(140, 198, 164, 0.9));
+}
+.sr-map.flows-paused .sr-flow {
+  animation-play-state: paused;
+}
+.sr-map.flows-paused .sr-particle {
+  display: none;
+}
+.sr-map.has-selection .sr-flow,
+.sr-map.has-selection .sr-flow-glow,
+.sr-map.has-selection .sr-particle {
+  opacity: 0.1 !important;
+}
+.sr-map.has-selection .sr-flow.is-related {
+  opacity: 1 !important;
+  stroke-width: 5px;
+}
+.sr-map.has-selection .sr-flow-glow.is-related {
+  opacity: 0.35 !important;
+}
+.sr-map.has-selection .sr-particle.is-related {
+  opacity: 1 !important;
+}
+
+/* tooltips */
+.leaflet-tooltip.sr-map-tip {
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #ffffff;
+  color: #1e2224;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+  white-space: normal;
+}
+.dark .leaflet-tooltip.sr-map-tip {
+  background: #121517;
+  color: #eceeee;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px #313638;
+}
+.leaflet-tooltip.sr-map-tip::before {
+  display: none;
+}
+.sr-tip {
+  width: 256px;
+  font-family: Inter, system-ui, sans-serif;
+}
+.sr-tip--small {
+  width: 220px;
+}
+.sr-tip__img {
+  height: 92px;
+  background-color: #2a714c;
+  background-size: cover;
+  background-position: center;
+}
+.sr-tip__body {
+  padding: 10px 12px 12px;
+}
+.sr-tip__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.sr-tip__dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 9999px;
+}
+.sr-tip__meta {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #848a8e;
+}
+.sr-tip__stats {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #eceeee;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.dark .sr-tip__stats {
+  border-top-color: #313638;
+}
+.sr-tip__stats b {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+}
+.sr-tip__stats span {
+  display: block;
+  font-size: 9.5px;
+  color: #848a8e;
+  line-height: 1.2;
+}
+
+/* declutter by zoom */
+.sr-map .sr-pin,
+.sr-map .sr-buyer,
+.sr-map .sr-hub {
+  transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sr-map.z-far .sr-pin {
+  transform: scale(0.62);
+}
+.sr-map.z-far .sr-buyer {
+  transform: scale(0.7);
+}
+.sr-map.z-far .sr-pin__label,
+.sr-map.z-far .sr-buyer .sr-pin__label {
+  opacity: 0;
+  transition: opacity 200ms;
+}
+.sr-map.z-far .sr-pin:hover .sr-pin__label,
+.sr-map.z-far .sr-pin.is-selected .sr-pin__label,
+.sr-map.z-far .sr-buyer:hover .sr-pin__label {
+  opacity: 1;
+}
+.sr-map.z-mid .sr-pin {
+  transform: scale(0.82);
+}
+.sr-map.z-mid .sr-buyer .sr-pin__label {
+  opacity: 0;
+}
+.sr-map.z-far .sr-pin.is-selected,
+.sr-map.z-mid .sr-pin.is-selected {
+  transform: scale(1);
+}
+
+/* ---------- Quality check scanline ---------- */
+.sr-scanline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #8dc6a4, #ffffff, #8dc6a4, transparent);
+  box-shadow: 0 0 14px 3px rgba(140, 198, 164, 0.85);
+  animation: srScan 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+@keyframes srScan {
+  0% { top: 4%; }
+  50% { top: 96%; }
+  100% { top: 4%; }
+}
+
+/* Recharts measures its container once; without this it can pin a grid
+   column open at a width the phone viewport cannot fit. */
+.recharts-responsive-container,
+.recharts-wrapper {
+  min-width: 0 !important;
 }

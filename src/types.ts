@@ -1,9 +1,12 @@
 /* ============================================================
-   SooqRoot — domain model
+   SooqRoot, domain model
    The Procurement Operating System for UAE Local Food
    ============================================================ */
 
+/** The theme actually rendered. */
 export type Theme = 'light' | 'dark';
+/** What the viewer chose - 'system' follows the operating system. */
+export type ThemePreference = 'light' | 'dark' | 'system';
 
 export type Grade = 'A' | 'B' | 'Mixed';
 export type Unit = 'kg' | 'crates' | 'boxes' | 'jars';
@@ -67,6 +70,9 @@ export interface Farm {
   /** Normalised 0-100 coordinates on the schematic network canvas */
   x: number;
   y: number;
+  /** Real-world location (WGS84) used by the interactive map */
+  lat: number;
+  lng: number;
   distanceKm: number;
   hectares: number;
   growingMethod: 'Open field' | 'Greenhouse' | 'Hydroponic' | 'Net house' | 'Aquaculture' | 'Apiary';
@@ -96,6 +102,9 @@ export interface Buyer {
   emirate: Emirate;
   x: number;
   y: number;
+  /** Real-world delivery point (WGS84) */
+  lat: number;
+  lng: number;
   contactName: string;
   localTargetPct: number;
   monthlySpendAed: number;
@@ -204,7 +213,7 @@ export interface Order {
   createdAt: string;
   status: OrderStatus;
   valueAed: number;
-  /** 0-100 — probability the order fills from local supply */
+  /** 0-100 - probability the order fills from local supply */
   confidence: number;
   committedQty: number;
   deliveredQty: number;

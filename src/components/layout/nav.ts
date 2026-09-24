@@ -1,5 +1,6 @@
 import {
   Activity,
+  ScanLine,
   Award,
   BarChart3,
   CalendarDays,
@@ -58,6 +59,7 @@ export const NAV: NavGroup[] = [
     items: [
       { to: '/exceptions', label: 'Exceptions', icon: TriangleAlert, badgeKey: 'exceptions' },
       { to: '/fulfilment', label: 'Fulfilment', icon: Truck },
+      { to: '/quality', label: 'Quality Check', icon: ScanLine },
       { to: '/passports', label: 'Batch Passports', icon: ShieldCheck },
     ],
   },

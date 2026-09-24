@@ -13,6 +13,7 @@ import {
   User,
 } from 'lucide-react';
 import { useStore } from '../state/AppStore';
+import type { ThemePreference } from '../types';
 import {
   Badge,
   Button,
@@ -30,7 +31,8 @@ export function Settings() {
     session,
     signOut,
     theme,
-    toggleTheme,
+    themePreference,
+    setThemePreference,
     sidebarCollapsed,
     toggleSidebar,
     resetDemoData,
@@ -85,7 +87,7 @@ export function Settings() {
               value={
                 session
                   ? `${formatDate(session.loggedInAt, 'long')} · ${formatTime(session.loggedInAt)}`
-                  : '—'
+                  : ', '
               }
             />
             <DataRow label="Session scope" value="This browser tab only" />
@@ -113,16 +115,16 @@ export function Settings() {
                 <div className="text-xs font-semibold text-charcoal-800 dark:text-charcoal-100">Theme</div>
                 <div className="mt-0.5 text-2xs text-charcoal-400">
                   Light is recommended for projection and live presentation.
+                  {themePreference === 'system' ? ` Following your device, currently ${theme}.` : ''}
                 </div>
               </div>
               <Segmented
-                value={theme}
-                onChange={(t) => {
-                  if (t !== theme) toggleTheme();
-                }}
+                value={themePreference}
+                onChange={(t) => setThemePreference(t as ThemePreference)}
                 options={[
                   { value: 'light', label: 'Light', icon: <Sun size={12} /> },
                   { value: 'dark', label: 'Dark', icon: <Moon size={12} /> },
+                  { value: 'system', label: 'System', icon: <Monitor size={12} /> },
                 ]}
               />
             </div>
@@ -181,7 +183,7 @@ export function Settings() {
               <p className="mt-1 text-2xs leading-relaxed text-charcoal-600 dark:text-charcoal-300">
                 Farms, buyers, volumes, prices and impact figures are illustrative and were authored
                 for demonstration. Sign-in is a demo gate, not a secure authentication service. State
-                persists to this browser&rsquo;s local storage so a demo survives a page refresh — it
+                persists to this browser&rsquo;s local storage so a demo survives a page refresh, it
                 is never sent anywhere.
               </p>
             </div>
@@ -230,8 +232,8 @@ export function Settings() {
         }
       >
         <p className="text-sm leading-relaxed text-charcoal-600 dark:text-charcoal-300">
-          Anything created during this session — new demand records, issued commitment packs, resolved
-          exceptions, sent Copilot messages — will be discarded and the dataset returned to its
+          Anything created during this session, new demand records, issued commitment packs, resolved
+          exceptions, sent Copilot messages, will be discarded and the dataset returned to its
           opening state. Your sign-in stays active.
         </p>
       </Modal>

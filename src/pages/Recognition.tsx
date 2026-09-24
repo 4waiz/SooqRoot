@@ -2,6 +2,8 @@ import { Award, Building2, Calendar, Sparkles, Trophy } from 'lucide-react';
 import { Badge, Card, CardHeader, PageHeader } from '../components/ui';
 import { RECOGNITION } from '../data/analytics';
 import { formatDate } from '../lib/metrics';
+import { SCENE } from '../data/media';
+import { ImagePanel } from '../components/ui/Photo';
 
 const TONE: Record<string, { bg: string; icon: typeof Trophy }> = {
   '2nd Place': { bg: '#c99c57', icon: Trophy },
@@ -27,7 +29,12 @@ export function Recognition() {
 
       {/* ---------------- Headline award ---------------- */}
       <Card padded={false} className="overflow-hidden">
-        <div className="relative bg-brand-gradient p-7 text-white md:p-10">
+        <ImagePanel
+          src={SCENE.agriNetwork(1600)}
+          alt="UAE farm network"
+          overlay="left"
+          className="p-7 text-white md:p-10"
+        >
           <svg
             className="pointer-events-none absolute inset-0 h-full w-full opacity-[0.13]"
             viewBox="0 0 400 200"
@@ -52,7 +59,7 @@ export function Recognition() {
               </h2>
               <p className="mt-3 text-sm leading-relaxed text-white/80">
                 Recognised for turning fragmented smallholder supply into pre-harvest commitments that
-                commercial buyers can actually contract against — not another marketplace listing
+                commercial buyers can actually contract against, not another marketplace listing
                 produce after it has already been picked.
               </p>
             </div>
@@ -67,7 +74,7 @@ export function Recognition() {
               </div>
             </div>
           </div>
-        </div>
+        </ImagePanel>
       </Card>
 
       {/* ---------------- Timeline ---------------- */}

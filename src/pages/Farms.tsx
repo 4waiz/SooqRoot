@@ -13,6 +13,9 @@ import {
   Segmented,
 } from '../components/ui';
 import { getProduct } from '../data/products';
+import { farmPhoto, productPhoto } from '../data/media';
+import { Avatar, Photo } from '../components/ui/Photo';
+import { Reveal } from '../components/ui/Motion';
 import { allocatable } from '../lib/engine';
 import { healthLabel } from '../lib/metrics';
 import { Farm } from '../types';
@@ -97,13 +100,15 @@ export function Farms() {
         </Card>
       ) : view === 'grid' ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {rows.map((f) => (
-            <FarmCard key={f.id} farm={f} />
+          {rows.map((f, i) => (
+            <Reveal key={f.id} delay={(i % 3) * 80}>
+              <FarmCard farm={f} />
+            </Reveal>
           ))}
         </div>
       ) : (
         <Card padded={false}>
-          <div className="overflow-x-auto">
+          <div className="min-w-0 overflow-x-auto">
             <table className="sr-table min-w-[900px]">
               <thead>
                 <tr>
@@ -126,7 +131,8 @@ export function Farms() {
                   return (
                     <tr key={f.id} className="group">
                       <td>
-                        <Link to={`/farms/${f.id}`} className="flex items-center gap-2 hover:text-brand-700">
+                        <Link to={`/farms/${f.id}`} className="flex items-center gap-2.5 hover:text-brand-700">
+                          <Avatar src={farmPhoto(f.id, 80, 80)} alt={f.name} size={30} />
                           <HealthDot status={f.status} />
                           <span className="text-xs font-semibold">{f.name}</span>
                           <span className="font-mono text-2xs text-charcoal-400">{f.code}</span>
@@ -186,29 +192,36 @@ function FarmCard({ farm }: { farm: Farm }) {
   return (
     <Link
       to={`/farms/${farm.id}`}
-      className="sr-card sr-card-hover group flex flex-col p-5"
+      className="sr-card sr-card-hover group flex h-full flex-col overflow-hidden"
     >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <HealthDot status={farm.status} />
-            <h3 className="truncate text-sm font-bold text-charcoal-900 dark:text-white">{farm.name}</h3>
-          </div>
-          <div className="ar mt-0.5 text-xs text-charcoal-400">{farm.nameAr}</div>
-        </div>
-        <span className="shrink-0 rounded-lg bg-canvas-soft px-2 py-1 font-mono text-2xs font-bold text-charcoal-500 dark:bg-charcoal-950">
+      <div className="relative h-36 overflow-hidden">
+        <Photo
+          src={farmPhoto(farm.id, 720, 300)}
+          alt={farm.name}
+          className="h-full w-full"
+          imgClassName="transition-transform duration-700 ease-spring group-hover:scale-[1.06]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950/80 via-charcoal-950/15 to-transparent" />
+        <span className="absolute end-3 top-3 rounded-lg bg-white/90 px-2 py-1 font-mono text-2xs font-bold text-charcoal-700 shadow-sm backdrop-blur dark:bg-charcoal-900/90 dark:text-charcoal-200">
           {farm.code}
         </span>
+        <span className="absolute start-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2 py-1 text-[10px] font-semibold text-charcoal-700 shadow-sm backdrop-blur dark:bg-charcoal-900/90 dark:text-charcoal-200">
+          <HealthDot status={farm.status} />
+          {farm.growingMethod}
+        </span>
+        <div className="absolute inset-x-4 bottom-3">
+          <h3 className="truncate text-base font-bold text-white drop-shadow">{farm.name}</h3>
+          <div className="ar text-xs text-white/80">{farm.nameAr}</div>
+        </div>
       </div>
 
-      <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-2xs text-charcoal-400">
+      <div className="flex flex-1 flex-col p-5 pt-4">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-2xs text-charcoal-400">
         <span className="inline-flex items-center gap-1">
           <MapPin size={11} /> {farm.area}
         </span>
         <span>·</span>
-        <span>{farm.distanceKm} km</span>
-        <span>·</span>
-        <span>{farm.growingMethod}</span>
+        <span>{farm.distanceKm} km to collection</span>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-1.5">
@@ -217,8 +230,9 @@ function FarmCard({ farm }: { farm: Farm }) {
           .map((id) => {
             const p = getProduct(id);
             return (
-              <span key={id} className="sr-chip">
-                {p.emoji} {p.name}
+              <span key={id} className="sr-chip !py-0.5 !ps-0.5">
+                <Avatar src={productPhoto(id, 48, 48)} alt={p.name} size={18} tint={p.color} fallback={p.emoji} className="!ring-0" />
+                {p.name}
               </span>
             );
           })}
@@ -264,6 +278,7 @@ function FarmCard({ farm }: { farm: Farm }) {
           size={15}
           className="text-charcoal-300 transition-transform group-hover:translate-x-0.5 group-hover:text-brand-600"
         />
+      </div>
       </div>
     </Link>
   );

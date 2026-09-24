@@ -23,6 +23,9 @@ import {
 } from '../components/ui';
 import { ChartTooltip } from '../components/viz/ChartTooltip';
 import { getProduct } from '../data/products';
+import { productPhoto } from '../data/media';
+import { Avatar } from '../components/ui/Photo';
+import { useChartColors } from '../lib/theme';
 import { farmName } from '../data/farms';
 import { FULFILMENT_JOBS } from '../data/operations';
 import { WEEKLY_FILL } from '../data/analytics';
@@ -40,6 +43,7 @@ const STAGES: FulfilmentStage[] = [
 
 export function Fulfilment() {
   const { orders } = useStore();
+  const chart = useChartColors();
   const [view, setView] = useState<'board' | 'list'>('board');
 
   const byStage = useMemo(() => {
@@ -58,7 +62,7 @@ export function Fulfilment() {
       <PageHeader
         eyebrow="Operations"
         title="Fulfilment"
-        subtitle="Batches moving from field to buyer dock — harvest, grading, packing, collection, consolidation and delivery."
+        subtitle="Batches moving from field to buyer dock, harvest, grading, packing, collection, consolidation and delivery."
         actions={
           <>
             <Badge tone="brand" icon={<Truck size={12} />}>
@@ -123,8 +127,9 @@ export function Fulfilment() {
                           </span>
                           <HealthDot status={j.health} />
                         </div>
-                        <div className="mt-1.5 text-xs font-bold text-charcoal-900 dark:text-white">
-                          {p.emoji} {j.qty.toLocaleString()} {j.unit}
+                        <div className="mt-1.5 flex items-center gap-2 text-xs font-bold text-charcoal-900 dark:text-white">
+                          <Avatar src={productPhoto(j.productId, 48, 48)} alt={p.name} size={20} tint={p.color} fallback={p.emoji} />
+                          {j.qty.toLocaleString()} {j.unit}
                         </div>
                         <div className="mt-0.5 truncate text-2xs text-charcoal-400">
                           {farmName(j.farmId)}
@@ -146,7 +151,7 @@ export function Fulfilment() {
         </div>
       ) : (
         <Card padded={false}>
-          <div className="overflow-x-auto">
+          <div className="min-w-0 overflow-x-auto">
             <table className="sr-table min-w-[900px]">
               <thead>
                 <tr>
@@ -177,7 +182,10 @@ export function Fulfilment() {
                       </td>
                       <td className="text-xs">{farmName(j.farmId)}</td>
                       <td className="text-xs">
-                        {p.emoji} {p.name}
+                        <span className="inline-flex items-center gap-2">
+                          <Avatar src={productPhoto(j.productId, 48, 48)} alt={p.name} size={22} tint={p.color} fallback={p.emoji} />
+                          {p.name}
+                        </span>
                       </td>
                       <td className="text-end text-xs font-semibold tabular-nums">
                         {j.qty.toLocaleString()} {j.unit}
@@ -222,15 +230,15 @@ export function Fulfilment() {
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="week" tickLine={false} axisLine={false} />
               <YAxis tickLine={false} axisLine={false} domain={[80, 100]} width={42} />
-              <Tooltip content={<ChartTooltip suffix="%" />} cursor={{ fill: 'rgba(60,140,97,0.05)' }} />
+              <Tooltip content={<ChartTooltip suffix="%" />} cursor={{ fill: chart.cursor }} />
               <Legend
                 iconType="circle"
                 iconSize={7}
                 wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
               />
-              <Bar dataKey="committed" name="Committed" fill="#badec7" radius={[4, 4, 0, 0]} maxBarSize={20} />
-              <Bar dataKey="delivered" name="Delivered" fill="#3c8c61" radius={[4, 4, 0, 0]} maxBarSize={20} />
-              <Bar dataKey="onTime" name="On time" fill="#1d4733" radius={[4, 4, 0, 0]} maxBarSize={20} />
+              <Bar dataKey="committed" name="Committed" fill={chart.soft} radius={[4, 4, 0, 0]} maxBarSize={20} />
+              <Bar dataKey="delivered" name="Delivered" fill={chart.brand} radius={[4, 4, 0, 0]} maxBarSize={20} />
+              <Bar dataKey="onTime" name="On time" fill={chart.brandDeep} radius={[4, 4, 0, 0]} maxBarSize={20} />
             </BarChart>
           </ResponsiveContainer>
         </div>

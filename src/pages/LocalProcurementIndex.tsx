@@ -16,14 +16,19 @@ import {
 } from 'recharts';
 import { useStore } from '../state/AppStore';
 import { Badge, Card, CardHeader, PageHeader, Progress } from '../components/ui';
-import { Ring } from '../components/ui/Metric';
+import { TargetGauge } from '../components/ui/Gauge';
+import { Avatar } from '../components/ui/Photo';
+import { CountUp, Reveal } from '../components/ui/Motion';
 import { ChartTooltip } from '../components/viz/ChartTooltip';
 import { BUYER_LPI, CATEGORY_MIX, MONTHLY } from '../data/analytics';
 import { getBuyer } from '../data/buyers';
+import { buyerPhoto } from '../data/media';
 import { formatAed } from '../lib/metrics';
+import { useChartColors } from '../lib/theme';
 
 export function LocalProcurementIndex() {
   const { metrics } = useStore();
+  const chart = useChartColors();
 
   const trend = MONTHLY.map((m) => ({
     month: m.month,
@@ -42,7 +47,7 @@ export function LocalProcurementIndex() {
       <PageHeader
         eyebrow="Intelligence"
         title="Local Procurement Index"
-        subtitle="The single number that tells a commercial buyer how much of their food spend genuinely comes from UAE farms — measured, not estimated."
+        subtitle="The single number that tells a commercial buyer how much of their food spend genuinely comes from UAE farms, measured, not estimated."
         actions={
           <Badge tone="brand" icon={<Activity size={12} />}>
             Trailing 12 months
@@ -51,27 +56,22 @@ export function LocalProcurementIndex() {
       />
 
       {/* ---------------- Headline ---------------- */}
-      <section className="grid gap-4 lg:grid-cols-[minmax(0,360px)_1fr]">
+      <section className="grid gap-4 lg:grid-cols-[minmax(0,380px)_1fr]">
         <Card className="flex flex-col items-center justify-center py-8">
-          <Ring
-            value={(metrics.lpiCurrent / metrics.lpiTarget) * 100}
-            target={100}
-            size={200}
-            stroke={18}
-            color="#2a714c"
-            label={<span className="sr-num text-[2.5rem] leading-none">{metrics.lpiCurrent}%</span>}
-            sublabel={
-              <span className="mt-1.5 text-2xs font-semibold uppercase leading-tight tracking-wider text-charcoal-400">
-                Local
-                <br />
-                Procurement Index
-              </span>
-            }
+          <TargetGauge
+            value={metrics.lpiCurrent}
+            target={metrics.lpiTarget}
+            max={40}
+            size={300}
+            label="Local Procurement Index"
+            marker={{ value: metrics.localProcurementPct, label: `This month ${metrics.localProcurementPct}%` }}
           />
           <div className="mt-6 grid w-full grid-cols-3 gap-2 px-2 text-center">
             <div className="sr-inset px-2 py-3">
               <div className="text-2xs uppercase tracking-wider text-charcoal-400">Current</div>
-              <div className="sr-num mt-1 text-lg">{metrics.lpiCurrent}%</div>
+              <div className="sr-num mt-1 text-lg">
+                <CountUp value={metrics.lpiCurrent} decimals={1} suffix="%" />
+              </div>
             </div>
             <div className="sr-inset px-2 py-3">
               <div className="text-2xs uppercase tracking-wider text-charcoal-400">Target</div>
@@ -79,19 +79,19 @@ export function LocalProcurementIndex() {
             </div>
             <div className="rounded-xl border border-amber-200 bg-amber-50 px-2 py-3 dark:border-amber-900 dark:bg-amber-900/30">
               <div className="text-2xs uppercase tracking-wider text-amber-600 dark:text-amber-300">Gap</div>
-              <div className="sr-num mt-1 text-lg text-amber-700 dark:text-amber-200">
-                {metrics.lpiGap}pp
+              <div className="sr-num mt-1 text-lg !text-amber-700 dark:!text-amber-200">
+                <CountUp value={metrics.lpiGap} decimals={1} suffix="pp" />
               </div>
             </div>
           </div>
           <p className="mt-4 max-w-xs px-4 text-center text-2xs leading-relaxed text-charcoal-400">
             The current month is running at{' '}
-            <span className="font-bold text-brand-600">{metrics.localProcurementPct}%</span> — above
-            target. Holding that rate closes the trailing gap in roughly two quarters.
+            <span className="font-bold text-brand-600 dark:text-brand-300">{metrics.localProcurementPct}%</span>{' '}
+, above target. Holding that rate closes the trailing gap in roughly two quarters.
           </p>
         </Card>
 
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <Card>
             <CardHeader
               title="Index over 12 months"
@@ -103,8 +103,8 @@ export function LocalProcurementIndex() {
                 <AreaChart data={trend} margin={{ top: 4, right: 8, left: -22, bottom: 0 }}>
                   <defs>
                     <linearGradient id="lpi-fill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#2a714c" stopOpacity={0.32} />
-                      <stop offset="100%" stopColor="#2a714c" stopOpacity={0} />
+                      <stop offset="0%" stopColor={chart.brand} stopOpacity={0.32} />
+                      <stop offset="100%" stopColor={chart.brand} stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -115,15 +115,16 @@ export function LocalProcurementIndex() {
                     type="monotone"
                     dataKey="local"
                     name="Local share"
-                    stroke="#2a714c"
+                    stroke={chart.brand}
                     strokeWidth={2.4}
                     fill="url(#lpi-fill)"
+                    animationDuration={1400}
                   />
                   <Line
                     type="monotone"
                     dataKey="target"
                     name="Target"
-                    stroke="#b07f3e"
+                    stroke="#c99c57"
                     strokeWidth={1.5}
                     strokeDasharray="5 4"
                     dot={false}
@@ -145,10 +146,10 @@ export function LocalProcurementIndex() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis dataKey="month" tickLine={false} axisLine={false} />
                   <YAxis tickLine={false} axisLine={false} width={44} />
-                  <Tooltip content={<ChartTooltip prefix="AED " suffix="K" />} cursor={{ fill: 'rgba(60,140,97,0.05)' }} />
+                  <Tooltip content={<ChartTooltip prefix="AED " suffix="K" />} cursor={{ fill: chart.cursor }} />
                   <Legend iconType="circle" iconSize={7} wrapperStyle={{ fontSize: 11, paddingTop: 6 }} />
-                  <Bar dataKey="local" name="Local" stackId="s" fill="#2a714c" radius={[0, 0, 0, 0]} maxBarSize={34} />
-                  <Bar dataKey="imported" name="Imported" stackId="s" fill="#d9dcdd" radius={[5, 5, 0, 0]} maxBarSize={34} />
+                  <Bar dataKey="local" name="Local" stackId="s" fill={chart.brand} maxBarSize={34} />
+                  <Bar dataKey="imported" name="Imported" stackId="s" fill={chart.muted} radius={[5, 5, 0, 0]} maxBarSize={34} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -157,7 +158,7 @@ export function LocalProcurementIndex() {
       </section>
 
       {/* ---------------- Buyer breakdown ---------------- */}
-      <section className="grid gap-4 xl:grid-cols-2">
+      <Reveal as="section" className="grid gap-4 xl:grid-cols-2">
         <Card padded={false}>
           <div className="p-5 pb-0">
             <CardHeader
@@ -171,18 +172,26 @@ export function LocalProcurementIndex() {
               const buyer = getBuyer(b.buyerId);
               const onTarget = b.localPct >= b.targetPct;
               return (
-                <div key={b.buyerId} className="rounded-xl border border-charcoal-100 p-3.5 dark:border-charcoal-800">
+                <div
+                  key={b.buyerId}
+                  className="rounded-xl border border-charcoal-100 p-3.5 transition hover:border-charcoal-200 hover:shadow-card dark:border-charcoal-800 dark:hover:border-charcoal-700"
+                >
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="truncate text-xs font-bold text-charcoal-900 dark:text-white">
-                        {buyer?.name}
-                      </div>
-                      <div className="mt-0.5 text-2xs text-charcoal-400">
-                        {buyer?.segment} · {formatAed(b.spendAed, { compact: true })}/month
+                    <div className="flex min-w-0 items-center gap-3">
+                      <Avatar src={buyerPhoto(b.buyerId, 96, 96)} alt={buyer?.name ?? ''} size={38} />
+                      <div className="min-w-0">
+                        <div className="truncate text-xs font-bold text-charcoal-900 dark:text-white">
+                          {buyer?.name}
+                        </div>
+                        <div className="mt-0.5 text-2xs text-charcoal-400">
+                          {buyer?.segment} · {formatAed(b.spendAed, { compact: true })}/month
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="sr-num text-lg">{b.localPct}%</span>
+                      <span className="sr-num text-lg">
+                        <CountUp value={b.localPct} decimals={1} suffix="%" />
+                      </span>
                       <Badge tone={onTarget ? 'emerald' : 'amber'}>
                         {onTarget ? 'On target' : `${(b.targetPct - b.localPct).toFixed(1)}pp short`}
                       </Badge>
@@ -191,7 +200,7 @@ export function LocalProcurementIndex() {
                   <div className="relative mt-3">
                     <Progress value={(b.localPct / 50) * 100} tone={onTarget ? 'healthy' : 'attention'} height="h-2" />
                     <span
-                      className="absolute top-1/2 h-3 w-0.5 -translate-y-1/2 rounded-full bg-charcoal-800 dark:bg-white"
+                      className="absolute top-1/2 h-3.5 w-0.5 -translate-y-1/2 rounded-full bg-charcoal-800 dark:bg-white"
                       style={{ left: `${(b.targetPct / 50) * 100}%` }}
                       title={`Target ${b.targetPct}%`}
                     />
@@ -208,27 +217,17 @@ export function LocalProcurementIndex() {
         <Card>
           <CardHeader
             title="Local share by category"
-            subtitle="Where local supply is strong — and where the gap sits"
+            subtitle="Where local supply is strong, and where the gap sits"
             icon={<Activity size={16} />}
           />
           <div className="mt-4 h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={CATEGORY_MIX}
-                layout="vertical"
-                margin={{ top: 4, right: 30, left: 16, bottom: 0 }}
-              >
+              <BarChart data={CATEGORY_MIX} layout="vertical" margin={{ top: 4, right: 30, left: 16, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                 <XAxis type="number" domain={[0, 100]} tickLine={false} axisLine={false} unit="%" />
-                <YAxis
-                  type="category"
-                  dataKey="category"
-                  tickLine={false}
-                  axisLine={false}
-                  width={92}
-                />
-                <Tooltip content={<ChartTooltip suffix="%" />} cursor={{ fill: 'rgba(60,140,97,0.05)' }} />
-                <Bar dataKey="localPct" name="Local share" radius={[0, 5, 5, 0]} maxBarSize={22}>
+                <YAxis type="category" dataKey="category" tickLine={false} axisLine={false} width={92} />
+                <Tooltip content={<ChartTooltip suffix="%" />} cursor={{ fill: chart.cursor }} />
+                <Bar dataKey="localPct" name="Local share" radius={[0, 5, 5, 0]} maxBarSize={22} animationDuration={1200}>
                   {CATEGORY_MIX.map((c) => (
                     <Cell key={c.category} fill={c.color} />
                   ))}
@@ -239,14 +238,14 @@ export function LocalProcurementIndex() {
           <div className="mt-2 rounded-xl bg-canvas-soft p-3.5 dark:bg-charcoal-950">
             <p className="text-2xs leading-relaxed text-charcoal-500 dark:text-charcoal-400">
               Dates and honey are already majority-local. Fish and vegetables carry the largest
-              addressable gap — and the largest volume — so they drive most of the index movement.
+              addressable gap, and the largest volume, so they drive most of the index movement.
             </p>
             <Link to="/analytics" className="sr-btn-secondary mt-3 !py-1.5 text-2xs">
               Open analytics <ArrowRight size={12} />
             </Link>
           </div>
         </Card>
-      </section>
+      </Reveal>
     </div>
   );
 }

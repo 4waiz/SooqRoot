@@ -25,6 +25,8 @@ import {
   Progress,
 } from '../components/ui';
 import { getProduct } from '../data/products';
+import { buyerPhoto, farmPhoto, productPhoto } from '../data/media';
+import { Avatar, Photo } from '../components/ui/Photo';
 import { getBuyer } from '../data/buyers';
 import { getFarm } from '../data/farms';
 import { BATCH_PASSPORTS, FULFILMENT_JOBS } from '../data/operations';
@@ -61,7 +63,7 @@ export function OrderDetail() {
 
       <PageHeader
         eyebrow={`Order · ${cycle?.name ?? 'Procurement cycle'}`}
-        title={`${order.ref} — ${product.name}`}
+        title={`${order.ref}, ${product.name}`}
         subtitle={
           <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-1">
             <span className="inline-flex items-center gap-1.5">
@@ -143,7 +145,7 @@ export function OrderDetail() {
         </div>
         {order.status === 'At risk' ? (
           <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-700 dark:border-rose-900 dark:bg-rose-900/30 dark:text-rose-200">
-            This order is flagged at risk — commitment coverage is {coverage}% against a{' '}
+            This order is flagged at risk, commitment coverage is {coverage}% against a{' '}
             {formatDate(order.requiredBy, 'long')} delivery date.{' '}
             <Link to="/exceptions" className="font-bold underline">
               Review exceptions
@@ -157,9 +159,16 @@ export function OrderDetail() {
         <div className="space-y-4">
           <Card>
             <CardHeader title="Order summary" icon={<Package size={16} />} />
-            <div className="mt-4 rounded-xl bg-canvas-soft p-4 dark:bg-charcoal-950">
+            <div className="mt-4 overflow-hidden rounded-xl bg-canvas-soft dark:bg-charcoal-950">
+              <Photo
+                src={productPhoto(order.productId, 640, 200)}
+                alt={product.name}
+                tint={product.color}
+                fallback={product.emoji}
+                className="h-24 w-full"
+              />
+              <div className="p-4">
               <div className="flex items-end gap-2">
-                <span className="text-2xl leading-none">{product.emoji}</span>
                 <div>
                   <div className="sr-num text-2xl leading-none">
                     {order.qty.toLocaleString()}
@@ -175,6 +184,7 @@ export function OrderDetail() {
                 </span>
                 <span className="font-bold text-charcoal-700 dark:text-charcoal-200">{coverage}%</span>
               </div>
+              </div>
             </div>
 
             <div className="mt-3">
@@ -182,7 +192,7 @@ export function OrderDetail() {
               <DataRow label="Confidence" value={`${order.confidence}%`} />
               <DataRow label="Required by" value={formatDate(order.requiredBy, 'long')} />
               <DataRow label="Created" value={formatDate(order.createdAt, 'long')} />
-              <DataRow label="Cycle" value={cycle?.ref ?? '—'} />
+              <DataRow label="Cycle" value={cycle?.ref ?? ', '} />
               <DataRow label="Delivery point" value={order.deliveryLocation} />
               <DataRow label="Packaging" value={order.packaging} />
               {order.deliveredQty > 0 ? (
@@ -198,8 +208,13 @@ export function OrderDetail() {
             <Card>
               <CardHeader title="Buyer" icon={<Building2 size={16} />} />
               <div className="mt-3">
-                <div className="text-sm font-bold text-charcoal-900 dark:text-white">{buyer.name}</div>
-                <div className="ar mt-0.5 text-xs text-charcoal-400">{buyer.nameAr}</div>
+                <div className="flex items-center gap-3">
+                  <Avatar src={buyerPhoto(buyer.id, 96, 96)} alt={buyer.name} size={40} />
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-bold text-charcoal-900 dark:text-white">{buyer.name}</div>
+                    <div className="ar text-xs text-charcoal-400">{buyer.nameAr}</div>
+                  </div>
+                </div>
                 <div className="mt-3">
                   <DataRow label="Segment" value={buyer.segment} />
                   <DataRow label="Emirate" value={buyer.emirate} />
@@ -213,7 +228,7 @@ export function OrderDetail() {
         </div>
 
         {/* ---------------- Allocations ---------------- */}
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <Card>
             <CardHeader
               title="Farm commitments"
@@ -230,7 +245,7 @@ export function OrderDetail() {
               <div className="mt-4 rounded-xl border border-dashed border-charcoal-200 p-6 text-center dark:border-charcoal-700">
                 <p className="text-xs font-semibold text-charcoal-600 dark:text-charcoal-300">
                   {order.status === 'Delivered'
-                    ? 'This order closed in a previous cycle — see its batch passports below.'
+                    ? 'This order closed in a previous cycle, see its batch passports below.'
                     : 'No commitments yet. Run the commitment engine to allocate this order.'}
                 </p>
               </div>
@@ -250,6 +265,7 @@ export function OrderDetail() {
                       }`}
                     >
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                        <Avatar src={farmPhoto(farm.id, 64, 64)} alt={farm.name} size={28} />
                         <HealthDot status={farm.status} />
                         <Link
                           to={`/farms/${farm.id}`}

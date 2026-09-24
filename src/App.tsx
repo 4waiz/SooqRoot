@@ -14,6 +14,7 @@ import { SupplyTwin } from './pages/SupplyTwin';
 import { HarvestCalendar } from './pages/HarvestCalendar';
 import { Exceptions } from './pages/Exceptions';
 import { Fulfilment } from './pages/Fulfilment';
+import { QualityCheck } from './pages/QualityCheck';
 import { BatchPassports } from './pages/BatchPassports';
 import { LocalProcurementIndex } from './pages/LocalProcurementIndex';
 import { Analytics } from './pages/Analytics';
@@ -49,6 +50,7 @@ export default function App() {
               <Route path="/harvest" element={<HarvestCalendar />} />
               <Route path="/exceptions" element={<Exceptions />} />
               <Route path="/fulfilment" element={<Fulfilment />} />
+              <Route path="/quality" element={<QualityCheck />} />
               <Route path="/passports" element={<BatchPassports />} />
               <Route path="/index" element={<LocalProcurementIndex />} />
               <Route path="/analytics" element={<Analytics />} />

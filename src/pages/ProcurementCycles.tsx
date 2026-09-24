@@ -4,6 +4,8 @@ import { ArrowRight, CalendarClock, Check, Layers, PackageCheck } from 'lucide-r
 import { useStore } from '../state/AppStore';
 import { Badge, Card, CardHeader, PageHeader, Progress } from '../components/ui';
 import { getProduct } from '../data/products';
+import { productPhoto } from '../data/media';
+import { Avatar } from '../components/ui/Photo';
 import { buyerName } from '../data/buyers';
 import { formatAed, formatDate } from '../lib/metrics';
 import { CycleStage } from '../types';
@@ -135,7 +137,7 @@ export function ProcurementCycles() {
                 <Progress value={cycle.coveragePct} tone={cycle.coveragePct >= 85 ? 'healthy' : 'attention'} className="mt-4" />
 
                 {cycleOrders.length > 0 ? (
-                  <div className="mt-4 overflow-x-auto">
+                  <div className="mt-4 min-w-0 overflow-x-auto">
                     <table className="sr-table min-w-[640px]">
                       <thead>
                         <tr>
@@ -156,7 +158,10 @@ export function ProcurementCycles() {
                               <td className="font-mono text-2xs font-bold">{o.ref}</td>
                               <td className="max-w-[160px] truncate text-xs">{buyerName(o.buyerId)}</td>
                               <td className="text-xs">
-                                {p.emoji} {p.name}
+                                <span className="inline-flex items-center gap-2">
+                                  <Avatar src={productPhoto(o.productId, 48, 48)} alt={p.name} size={22} tint={p.color} fallback={p.emoji} />
+                                  {p.name}
+                                </span>
                               </td>
                               <td className="text-end text-xs tabular-nums">
                                 {o.qty.toLocaleString()} {o.unit}

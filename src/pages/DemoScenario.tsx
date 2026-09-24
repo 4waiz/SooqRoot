@@ -15,6 +15,8 @@ import {
 import { useStore } from '../state/AppStore';
 import { Badge, Card, CardHeader, PageHeader } from '../components/ui';
 import { formatAed } from '../lib/metrics';
+import { SCENE } from '../data/media';
+import { ImagePanel, Photo } from '../components/ui/Photo';
 
 const STORY = [
   {
@@ -23,7 +25,7 @@ const STORY = [
     icon: Gauge,
     title: 'Control Tower',
     line: 'Open on the network position: local procurement share, open commitments, match rate, and the two orders that need intervention today.',
-    say: '“This is what a procurement lead sees at 8am — one screen, the whole local supply position.”',
+    say: '“This is what a procurement lead sees at 8am, one screen, the whole local supply position.”',
   },
   {
     step: '02',
@@ -38,7 +40,7 @@ const STORY = [
     to: '/engine',
     icon: Cpu,
     title: 'Commitment Engine',
-    line: 'Run the 10,000 kg tomato order. It splits across five farms at 9,200 kg with 800 kg of backup cover — 100% coverage before anything is harvested.',
+    line: 'Run the 10,000 kg tomato order. It splits across five farms at 9,200 kg with 800 kg of backup cover, 100% coverage before anything is harvested.',
     say: '“No single farm carries more than 23% of an order. That is the difference between a marketplace and infrastructure.”',
   },
   {
@@ -46,7 +48,7 @@ const STORY = [
     to: '/network',
     icon: Sprout,
     title: 'Supply Digital Twin',
-    line: 'Show the network canvas — where the farms are, what they can actually deliver, and which buyer demand they already carry.',
+    line: 'Show the network canvas, where the farms are, what they can actually deliver, and which buyer demand they already carry.',
     say: '“Twelve farms across Al Ain, Al Khazna, Sweihan, Remah and Liwa, publishing forward capacity.”',
   },
   {
@@ -62,7 +64,7 @@ const STORY = [
     to: '/copilot',
     icon: MessageSquare,
     title: 'Farmer Copilot',
-    line: 'Show the Arabic commitment message going to Al Ain Farm 018 over WhatsApp — and the farm replying YES.',
+    line: 'Show the Arabic commitment message going to Al Ain Farm 018 over WhatsApp, and the farm replying YES.',
     say: '“The farmer never logs into a dashboard. They get a WhatsApp in Arabic and reply with one word.”',
   },
   {
@@ -71,7 +73,7 @@ const STORY = [
     icon: ShieldCheck,
     title: 'Batch Passports',
     line: 'Open a passport: farm, harvest date, chain of custody, food miles, CO₂e avoided, verification hash.',
-    say: '“This is what the buyer’s sustainability report needs — and it is generated as a by-product of fulfilment.”',
+    say: '“This is what the buyer’s sustainability report needs, and it is generated as a by-product of fulfilment.”',
   },
   {
     step: '08',
@@ -91,7 +93,7 @@ export function DemoScenario() {
       <PageHeader
         eyebrow="System"
         title="Demo Scenario"
-        subtitle="An eight-step run through the product, in the order that tells the strongest story. Every screen is live — nothing here is a slide."
+        subtitle="An eight-step run through the product, in the order that tells the strongest story. Every screen is live, nothing here is a slide."
         actions={
           <>
             <Badge tone="sand" icon={<Info size={12} />}>
@@ -105,7 +107,12 @@ export function DemoScenario() {
       />
 
       {/* ---------------- The narrative ---------------- */}
-      <Card className="overflow-hidden bg-brand-gradient text-white" padded={false}>
+      <ImagePanel
+        src={SCENE.agriNetwork(1600)}
+        alt="UAE farms connected to buyers"
+        overlay="left"
+        className="rounded-2xl text-white shadow-card"
+      >
         <div className="p-6 md:p-8">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-2xs font-semibold backdrop-blur">
             The SooqRoot story
@@ -131,8 +138,16 @@ export function DemoScenario() {
               )
             )}
           </div>
+
+          <div className="mt-8 overflow-hidden rounded-2xl border border-white/20 shadow-lift">
+            <Photo
+              src={SCENE.dashboardMockup(1600)}
+              alt="SooqRoot Control Tower on a laptop"
+              className="aspect-[16/9] w-full"
+            />
+          </div>
         </div>
-      </Card>
+      </ImagePanel>
 
       {/* ---------------- Numbers to know ---------------- */}
       <Card>
@@ -142,7 +157,7 @@ export function DemoScenario() {
           <Fact label="Open commitments" value={formatAed(metrics.openCommitmentsAed, { compact: true })} note="pre-harvest, current cycle" />
           <Fact label="Pre-harvest match rate" value={`${metrics.preHarvestMatchPct}%`} note="of requested volume already committed" />
           <Fact label="Expected fill rate" value={`${metrics.expectedFillPct}%`} note="committed volume delivered in full" />
-          <Fact label="Local procurement index" value={`${metrics.lpiCurrent}%`} note={`against a ${metrics.lpiTarget}% target — ${metrics.lpiGap}pp gap`} />
+          <Fact label="Local procurement index" value={`${metrics.lpiCurrent}%`} note={`against a ${metrics.lpiTarget}% target, ${metrics.lpiGap}pp gap`} />
           <Fact label="Current month" value={`${metrics.localProcurementPct}%`} note="running above target" />
           <Fact label="Order book" value={`${orders.length} orders`} note={`${metrics.atRiskOrders} flagged at risk`} />
           <Fact label="Concentration limit" value="23%" note="maximum share of one order per farm" />
@@ -188,8 +203,8 @@ export function DemoScenario() {
           <div>
             <h3 className="sr-h3">Reset before the next run</h3>
             <p className="sr-sub mt-1 text-xs">
-              Clears anything created during a demo — new demand records, issued commitments, resolved
-              exceptions — and restores the dataset to its opening state.
+              Clears anything created during a demo, new demand records, issued commitments, resolved
+              exceptions, and restores the dataset to its opening state.
             </p>
           </div>
           <button

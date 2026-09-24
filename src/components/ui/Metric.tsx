@@ -1,9 +1,11 @@
 import React from 'react';
 import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useSettle } from './Motion';
+import { useReadableColor } from '../../lib/theme';
 
 /* ============================================================
-   Metric tile — the Control Tower's core information unit.
+   Metric tile, the Control Tower's core information unit.
    ============================================================ */
 
 export interface MetricProps {
@@ -33,6 +35,7 @@ export function Metric({
   to,
   spark,
 }: MetricProps) {
+  const readable = useReadableColor();
   const hasDelta = typeof delta === 'number' && delta !== 0;
   const isUp = (delta ?? 0) > 0;
   const good = deltaGoodWhen === 'up' ? isUp : !isUp;
@@ -44,7 +47,7 @@ export function Metric({
         {icon ? (
           <span
             className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-            style={{ background: `${accent}14`, color: accent }}
+            style={{ background: `${accent}1f`, color: readable(accent) }}
           >
             {icon}
           </span>
@@ -145,7 +148,6 @@ export function Sparkline({
 
 export function Ring({
   value,
-  target,
   size = 160,
   stroke = 14,
   label,
@@ -154,7 +156,6 @@ export function Ring({
   trackColor,
 }: {
   value: number;
-  target?: number;
   size?: number;
   stroke?: number;
   label?: React.ReactNode;
@@ -164,9 +165,8 @@ export function Ring({
 }) {
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
-  const pct = Math.max(0, Math.min(100, value));
+  const pct = useSettle(Math.max(0, Math.min(100, value)), 80);
   const dash = (pct / 100) * c;
-  const targetAngle = target !== undefined ? (Math.min(100, target) / 100) * 360 - 90 : null;
 
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
@@ -192,14 +192,6 @@ export function Ring({
           style={{ transition: 'stroke-dasharray 900ms cubic-bezier(0.16,1,0.3,1)' }}
         />
       </svg>
-      {targetAngle !== null ? (
-        <span
-          className="absolute left-1/2 top-1/2 origin-left"
-          style={{ transform: `rotate(${targetAngle}deg) translateX(${r - stroke / 2 - 2}px)` }}
-        >
-          <span className="block h-[3px] w-[18px] rounded-full bg-charcoal-800 dark:bg-white" />
-        </span>
-      ) : null}
       <div
         className="absolute inset-0 flex flex-col items-center justify-center px-2 text-center"
         style={{ paddingInline: stroke + 6 }}

@@ -24,6 +24,8 @@ import {
   Textarea,
 } from '../components/ui';
 import { PRODUCTS, getProduct } from '../data/products';
+import { productPhoto } from '../data/media';
+import { Avatar } from '../components/ui/Photo';
 import { DEMAND_PRESETS } from '../data/demand';
 import { formatAed, formatDate } from '../lib/metrics';
 import { translateDemand, TranslationResult, TRANSLATOR_SAMPLES } from '../lib/translator';
@@ -43,18 +45,18 @@ const PACKAGING_OPTIONS = [
 const FREQUENCIES: DemandLine['frequency'][] = ['One-off', 'Weekly', 'Twice weekly', 'Daily'];
 
 const LOCATIONS = [
-  'Al Ain — Central Kitchen',
-  'Abu Dhabi — Mussafah DC',
-  'Abu Dhabi — Corniche',
-  'Dubai — Al Quoz DC',
-  'Dubai — The Sustainable City',
+  'Al Ain. Central Kitchen',
+  'Abu Dhabi. Mussafah DC',
+  'Abu Dhabi. Corniche',
+  'Dubai. Al Quoz DC',
+  'Dubai. The Sustainable City',
 ];
 
 const ORIGINS = [
   'UAE only',
-  'UAE — Al Ain Region preferred',
+  'UAE. Al Ain Region preferred',
   'UAE preferred, GCC acceptable',
-  'UAE only — sub-100km preferred',
+  'UAE only, sub-100km preferred',
 ];
 
 interface DraftLine {
@@ -143,7 +145,7 @@ export function BuyerDemand() {
       id: `dem-${Date.now()}`,
       ref,
       buyerId,
-      title: title.trim() || `${buyer.name} — ${getProduct(lines[0].productId).name} programme`,
+      title: title.trim() || `${buyer.name}, ${getProduct(lines[0].productId).name} programme`,
       createdAt: new Date().toISOString().slice(0, 10),
       status: 'approved',
       source,
@@ -264,7 +266,7 @@ export function BuyerDemand() {
           <Select label="Buyer" value={buyerId} onChange={(e) => setBuyerId(e.target.value)}>
             {buyers.map((b) => (
               <option key={b.id} value={b.id}>
-                {b.name} — {b.segment}
+                {b.name}, {b.segment}
               </option>
             ))}
           </Select>
@@ -287,7 +289,7 @@ export function BuyerDemand() {
               >
                 <div className="mb-3 flex items-center justify-between">
                   <span className="inline-flex items-center gap-2 text-xs font-bold text-charcoal-700 dark:text-charcoal-200">
-                    <span className="text-base">{product.emoji}</span>
+                    <Avatar src={productPhoto(l.productId, 64, 64)} alt={product.name} size={26} tint={product.color} fallback={product.emoji} />
                     Line {idx + 1}
                     <span className="font-mono text-2xs font-medium text-charcoal-400">
                       {formatAed(l.qty * product.refPrice, { compact: true })}
@@ -437,7 +439,7 @@ export function BuyerDemand() {
         <div className="p-5 pb-0">
           <CardHeader title="Demand register" subtitle="Every demand record in the current and next cycle" />
         </div>
-        <div className="mt-4 overflow-x-auto">
+        <div className="mt-4 min-w-0 overflow-x-auto">
           {demands.length === 0 ? (
             <EmptyState title="No demand captured yet" hint="Use the builder above to create your first record." />
           ) : (
@@ -461,7 +463,7 @@ export function BuyerDemand() {
                   return (
                     <tr key={d.id}>
                       <td className="font-mono text-xs font-semibold">{d.ref}</td>
-                      <td className="text-xs">{buyerRec?.name ?? '—'}</td>
+                      <td className="text-xs">{buyerRec?.name ?? ', '}</td>
                       <td className="max-w-[240px] truncate text-xs font-medium">{d.title}</td>
                       <td className="text-xs tabular-nums">{d.lines.length}</td>
                       <td className="text-xs font-semibold tabular-nums">

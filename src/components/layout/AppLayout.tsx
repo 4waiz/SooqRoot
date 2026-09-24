@@ -3,9 +3,14 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-do
 import {
   ChevronLeft,
   Command,
+  Gauge,
   LogOut,
   Menu,
+  MessageSquare,
   Moon,
+  MoreHorizontal,
+  PackageCheck,
+  ScanLine,
   Search,
   Sun,
   X,
@@ -146,7 +151,7 @@ export function AppLayout() {
   );
 
   return (
-    <div className="flex min-h-screen bg-canvas dark:bg-charcoal-950">
+    <div className="flex min-h-screen min-h-dvh bg-canvas dark:bg-charcoal-950">
       {/* ---------- Desktop sidebar ---------- */}
       <aside
         className={`fixed inset-y-0 start-0 z-40 hidden shrink-0 flex-col border-e border-charcoal-100 bg-white transition-[width] duration-300 ease-spring dark:border-charcoal-800 dark:bg-charcoal-900 lg:flex ${sidebarWidth}`}
@@ -290,16 +295,16 @@ export function AppLayout() {
           </div>
         </header>
 
-        <main className="flex-1 px-4 py-6 md:px-6 md:py-8">
+        <main className="flex-1 px-4 pb-24 pt-6 md:px-6 md:py-8 lg:pb-6">
           <div className="mx-auto w-full max-w-[1400px]">
             <Outlet />
           </div>
         </main>
 
-        <footer className="border-t border-charcoal-100 px-4 py-5 dark:border-charcoal-800 md:px-6">
+        <footer className="border-t border-charcoal-100 px-4 py-5 pb-24 dark:border-charcoal-800 md:px-6 lg:pb-5">
           <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-2 text-2xs text-charcoal-400 md:flex-row md:items-center md:justify-between">
             <span>
-              SooqRoot — The Procurement Operating System for UAE Local Food · One Order. Many Farms.
+              SooqRoot. The Procurement Operating System for UAE Local Food · One Order. Many Farms.
               Confirmed Before Harvest.
             </span>
             <span className="flex items-center gap-3">
@@ -310,7 +315,72 @@ export function AppLayout() {
         </footer>
       </div>
 
+      {/* ---------- Mobile bottom bar ---------- */}
+      <nav
+        className="fixed inset-x-0 bottom-0 z-40 flex items-stretch border-t border-charcoal-100 bg-white/95 backdrop-blur-xl dark:border-charcoal-800 dark:bg-charcoal-900/95 lg:hidden"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+      >
+        {BOTTOM_NAV.map((item) => {
+          const Icon = item.icon;
+          const count = item.badgeKey ? badges[item.badgeKey] : 0;
+          return (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              className={({ isActive }) =>
+                `relative flex flex-1 flex-col items-center justify-center gap-1 py-2.5 text-[10px] font-semibold transition ${
+                  isActive
+                    ? 'text-brand-700 dark:text-brand-200'
+                    : 'text-charcoal-500 dark:text-charcoal-400'
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <span
+                    className={`relative inline-flex h-7 w-12 items-center justify-center rounded-full transition ${
+                      isActive ? 'bg-brand-50 dark:bg-brand-900' : ''
+                    }`}
+                  >
+                    <Icon size={17} strokeWidth={2} />
+                    {count > 0 ? (
+                      <span className="absolute -end-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-bold text-white">
+                        {count}
+                      </span>
+                    ) : null}
+                  </span>
+                  {item.label}
+                </>
+              )}
+            </NavLink>
+          );
+        })}
+        <button
+          onClick={() => setMobileOpen(true)}
+          className="flex flex-1 flex-col items-center justify-center gap-1 py-2.5 text-[10px] font-semibold text-charcoal-500 transition dark:text-charcoal-400"
+          aria-label="Open all sections"
+        >
+          <span className="inline-flex h-7 w-12 items-center justify-center rounded-full">
+            <MoreHorizontal size={17} />
+          </span>
+          More
+        </button>
+      </nav>
+
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
     </div>
   );
 }
+
+/** The four destinations a field or procurement user needs one thumb away. */
+const BOTTOM_NAV: {
+  to: string;
+  label: string;
+  icon: typeof Gauge;
+  badgeKey?: 'exceptions' | 'atRisk' | 'copilot';
+}[] = [
+  { to: '/dashboard', label: 'Tower', icon: Gauge },
+  { to: '/orders', label: 'Orders', icon: PackageCheck, badgeKey: 'atRisk' },
+  { to: '/quality', label: 'Quality', icon: ScanLine },
+  { to: '/copilot', label: 'Copilot', icon: MessageSquare, badgeKey: 'copilot' },
+];

@@ -1,7 +1,7 @@
 import { CategoryMix, MonthPoint } from '../types';
 
 /* ============================================================
-   DEMO ANALYTICS — 12 months of network performance.
+   DEMO ANALYTICS, 12 months of network performance.
    The trailing-12-month local procurement index lands at 21.7%
    against a 25% target; the current month is running at 26.4%.
    ============================================================ */
@@ -21,7 +21,7 @@ export const MONTHLY: MonthPoint[] = [
   { month: 'Sep 26', localPct: 26.4, targetPct: 25, importedAed: 2_310_000, localAed: 829_000, fillRate: 96, commitments: 91, co2SavedKg: 20_800, waterSavedM3: 2_660, farmIncomeAed: 688_000 },
 ];
 
-/** Trailing-12-month weighted local share — the headline Local Procurement Index. */
+/** Trailing-12-month weighted local share - the headline Local Procurement Index. */
 export const LPI_TRAILING_12M = 21.7;
 export const LPI_TARGET = 25;
 export const LPI_CURRENT_MONTH = 26.4;

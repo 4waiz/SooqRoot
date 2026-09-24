@@ -1,6 +1,6 @@
 import { Buyer } from '../types';
 
-/** DEMO BUYERS — fictional commercial accounts. */
+/** DEMO BUYERS - fictional commercial accounts. */
 export const BUYERS: Buyer[] = [
   {
     id: 'buyer-jebel-hospitality',
@@ -10,6 +10,8 @@ export const BUYERS: Buyer[] = [
     emirate: 'Al Ain Region',
     x: 86,
     y: 51,
+    lat: 24.217,
+    lng: 55.7564,
     contactName: 'Reem Al Hosani',
     localTargetPct: 30,
     monthlySpendAed: 412000,
@@ -24,6 +26,8 @@ export const BUYERS: Buyer[] = [
     emirate: 'Abu Dhabi',
     x: 30,
     y: 52,
+    lat: 24.3486,
+    lng: 54.5043,
     contactName: 'Tariq Bin Salem',
     localTargetPct: 25,
     monthlySpendAed: 688000,
@@ -38,6 +42,8 @@ export const BUYERS: Buyer[] = [
     emirate: 'Dubai',
     x: 34,
     y: 18,
+    lat: 25.1384,
+    lng: 55.2306,
     contactName: 'Priya Nair',
     localTargetPct: 22,
     monthlySpendAed: 940000,
@@ -52,6 +58,8 @@ export const BUYERS: Buyer[] = [
     emirate: 'Dubai',
     x: 28,
     y: 26,
+    lat: 25.0305,
+    lng: 55.2719,
     contactName: 'Layla Haddad',
     localTargetPct: 45,
     monthlySpendAed: 186000,
@@ -66,6 +74,8 @@ export const BUYERS: Buyer[] = [
     emirate: 'Abu Dhabi',
     x: 24,
     y: 44,
+    lat: 24.4765,
+    lng: 54.3419,
     contactName: 'Georges Aoun',
     localTargetPct: 28,
     monthlySpendAed: 255000,

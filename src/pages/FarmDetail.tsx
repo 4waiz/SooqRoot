@@ -26,15 +26,19 @@ import {
   Progress,
 } from '../components/ui';
 import { Ring } from '../components/ui/Metric';
+import { Avatar, ImagePanel } from '../components/ui/Photo';
+import { CountUp } from '../components/ui/Motion';
+import { SupplyMap } from '../components/viz/SupplyMap';
 import { getProduct } from '../data/products';
 import { buyerName } from '../data/buyers';
+import { farmPhoto, productPhoto } from '../data/media';
 import { HARVEST_EVENTS } from '../data/operations';
 import { allocatable } from '../lib/engine';
 import { formatDate, healthLabel } from '../lib/metrics';
 
 export function FarmDetail() {
   const { farmId } = useParams();
-  const { farms, orders } = useStore();
+  const { farms, buyers, orders } = useStore();
 
   const farm = farms.find((f) => f.id === farmId);
   if (!farm) return <Navigate to="/farms" replace />;
@@ -66,34 +70,48 @@ export function FarmDetail() {
         <ArrowLeft size={14} /> All farms
       </Link>
 
-      <PageHeader
-        eyebrow={`Supply Network · ${farm.code}`}
-        title={farm.name}
-        subtitle={
-          <span className="inline-flex flex-wrap items-center gap-x-3 gap-y-1">
-            <span className="ar">{farm.nameAr}</span>
-            <span className="inline-flex items-center gap-1.5">
-              <MapPin size={13} /> {farm.area}
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Ruler size={13} /> {farm.distanceKm} km to collection point
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Sprout size={13} /> {farm.growingMethod} · {farm.hectares} ha
-            </span>
-          </span>
-        }
-        actions={
-          <>
-            <Badge tone={HEALTH_TONE[farm.status]} icon={<HealthDot status={farm.status} />}>
-              {healthLabel(farm.status)}
-            </Badge>
-            <Link to="/copilot" className="sr-btn-secondary">
-              <MessageSquare size={15} /> Message farm
-            </Link>
-          </>
-        }
-      />
+      <ImagePanel
+        src={farmPhoto(farm.id, 1600, 560)}
+        alt={farm.name}
+        overlay="left"
+        priority
+        className="rounded-2xl shadow-card"
+      >
+        <div className="flex min-h-[210px] flex-col justify-end gap-4 p-5 text-white sm:p-7 md:flex-row md:items-end md:justify-between">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-lg bg-white/15 px-2 py-0.5 font-mono text-2xs font-bold backdrop-blur">
+                {farm.code}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-0.5 text-2xs font-semibold backdrop-blur">
+                <HealthDot status={farm.status} />
+                {healthLabel(farm.status)}
+              </span>
+            </div>
+            <h1 className="mt-2.5 font-display text-2xl font-bold tracking-tight drop-shadow-sm sm:text-3xl">
+              {farm.name}
+            </h1>
+            <div className="ar mt-0.5 text-sm text-white/80">{farm.nameAr}</div>
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-2xs text-white/85">
+              <span className="inline-flex items-center gap-1.5">
+                <MapPin size={12} /> {farm.area}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Ruler size={12} /> {farm.distanceKm} km to collection point
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Sprout size={12} /> {farm.growingMethod} · {farm.hectares} ha
+              </span>
+            </div>
+          </div>
+          <Link
+            to="/copilot"
+            className="sr-btn shrink-0 self-start bg-white text-brand-800 shadow-soft hover:bg-brand-50 md:self-auto"
+          >
+            <MessageSquare size={15} /> Message farm
+          </Link>
+        </div>
+      </ImagePanel>
 
       {/* ---------------- Scores ---------------- */}
       <section className="grid gap-4 md:grid-cols-3 xl:grid-cols-5">
@@ -107,8 +125,12 @@ export function FarmDetail() {
               value={utilisation}
               size={92}
               stroke={10}
-              color={utilisation > 85 ? '#c99c57' : '#2a714c'}
-              label={<span className="sr-num text-lg leading-none">{utilisation}%</span>}
+              color={utilisation > 85 ? '#c99c57' : '#3c8c61'}
+              label={
+                <span className="sr-num text-lg leading-none">
+                  <CountUp value={utilisation} suffix="%" />
+                </span>
+              }
             />
             <div className="flex-1 space-y-1">
               <DataRow label="Expected harvest" value={`${expected.toLocaleString()} units`} />
@@ -129,7 +151,7 @@ export function FarmDetail() {
 
       <section className="grid gap-4 xl:grid-cols-[1fr_minmax(0,340px)]">
         {/* ---------------- Crop lines ---------------- */}
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <Card>
             <CardHeader
               title="Crop capacity"
@@ -147,8 +169,8 @@ export function FarmDetail() {
                     className="rounded-xl border border-charcoal-100 p-4 dark:border-charcoal-800"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">{p.emoji}</span>
+                      <div className="flex items-center gap-2.5">
+                        <Avatar src={productPhoto(c.productId, 96, 96)} alt={p.name} size={38} tint={p.color} fallback={p.emoji} />
                         <div>
                           <div className="text-sm font-bold text-charcoal-900 dark:text-white">
                             {p.name}
@@ -157,7 +179,7 @@ export function FarmDetail() {
                         </div>
                       </div>
                       <Badge tone="neutral" icon={<CalendarDays size={10} />}>
-                        {formatDate(c.harvestWindowStart)} – {formatDate(c.harvestWindowEnd)}
+                        {formatDate(c.harvestWindowStart)}, {formatDate(c.harvestWindowEnd)}
                       </Badge>
                     </div>
 
@@ -205,7 +227,7 @@ export function FarmDetail() {
                   } orders`}
                 />
               </div>
-              <div className="mt-4 overflow-x-auto">
+              <div className="mt-4 min-w-0 overflow-x-auto">
                 <table className="sr-table min-w-[640px]">
                   <thead>
                     <tr>
@@ -233,7 +255,10 @@ export function FarmDetail() {
                           </td>
                           <td className="max-w-[150px] truncate text-xs">{buyerName(order.buyerId)}</td>
                           <td className="text-xs">
-                            {p.emoji} {p.name}
+                            <span className="inline-flex items-center gap-2">
+                              <Avatar src={productPhoto(order.productId, 48, 48)} alt={p.name} size={22} tint={p.color} fallback={p.emoji} />
+                              {p.name}
+                            </span>
                           </td>
                           <td className="text-end text-xs font-semibold tabular-nums">
                             {allocation.qty.toLocaleString()} {allocation.unit}
@@ -279,6 +304,31 @@ export function FarmDetail() {
             </div>
           </Card>
 
+          <Card padded={false} className="overflow-hidden">
+            <div className="p-5 pb-3">
+              <CardHeader
+                title="Location"
+                subtitle={`${farm.lat.toFixed(4)}°N, ${farm.lng.toFixed(4)}°E`}
+                icon={<MapPin size={16} />}
+              />
+            </div>
+            <SupplyMap
+              farms={[farm]}
+              buyers={buyers}
+              links={commitments
+                .filter((c) => c.allocation.role === 'primary')
+                .map((c) => ({
+                  farmId: farm.id,
+                  buyerId: c.order.buyerId,
+                  qty: c.allocation.qty,
+                  health: c.order.health,
+                }))}
+              height={240}
+              showHub={false}
+              className="!rounded-none"
+            />
+          </Card>
+
           <Card>
             <CardHeader title="Certifications" icon={<ShieldCheck size={16} />} />
             <div className="mt-3 flex flex-wrap gap-1.5">
@@ -307,9 +357,8 @@ export function FarmDetail() {
                         </span>
                         <span className="text-2xs font-bold leading-none">{new Date(h.date).getDate()}</span>
                       </div>
-                      <span className="flex-1 truncate text-xs font-medium">
-                        {p.emoji} {p.name}
-                      </span>
+                      <Avatar src={productPhoto(h.productId, 48, 48)} alt={p.name} size={22} tint={p.color} fallback={p.emoji} />
+                      <span className="flex-1 truncate text-xs font-medium">{p.name}</span>
                       <span className="text-2xs font-bold tabular-nums text-charcoal-600 dark:text-charcoal-300">
                         {h.qty.toLocaleString()} {h.unit}
                       </span>

@@ -24,11 +24,13 @@ import { useStore } from '../state/AppStore';
 import { Badge, Card, CardHeader, PageHeader, Progress } from '../components/ui';
 import { ChartTooltip } from '../components/viz/ChartTooltip';
 import { IMPACT, MONTHLY } from '../data/analytics';
+import { useChartColors } from '../lib/theme';
 import { BATCH_PASSPORTS } from '../data/operations';
 import { formatAed } from '../lib/metrics';
 
 export function SustainabilityImpact() {
   const { farms, metrics } = useStore();
+  const chart = useChartColors();
 
   const trend = MONTHLY.map((m) => ({
     month: m.month,
@@ -41,7 +43,7 @@ export function SustainabilityImpact() {
       <PageHeader
         eyebrow="Intelligence"
         title="Sustainability Impact"
-        subtitle="What shortening the food supply chain actually delivers — measured per batch, rolled up across the network."
+        subtitle="What shortening the food supply chain actually delivers, measured per batch, rolled up across the network."
         actions={
           <Badge tone="emerald" icon={<Leaf size={12} />}>
             Year to date
@@ -93,8 +95,8 @@ export function SustainabilityImpact() {
               <AreaChart data={trend} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="imp-co2" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#2a714c" stopOpacity={0.32} />
-                    <stop offset="100%" stopColor="#2a714c" stopOpacity={0} />
+                    <stop offset="0%" stopColor={chart.brand} stopOpacity={0.32} />
+                    <stop offset="100%" stopColor={chart.brand} stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="imp-water" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#2f6f8a" stopOpacity={0.24} />
@@ -111,7 +113,7 @@ export function SustainabilityImpact() {
                   type="monotone"
                   dataKey="co2"
                   name="CO₂e avoided (t)"
-                  stroke="#2a714c"
+                  stroke={chart.brand}
                   strokeWidth={2.2}
                   fill="url(#imp-co2)"
                 />

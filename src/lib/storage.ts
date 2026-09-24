@@ -14,7 +14,7 @@ export function saveItem<T>(key: string, value: T): void {
   try {
     localStorage.setItem(PREFIX + key, JSON.stringify(value));
   } catch {
-    /* quota or private mode — the demo works fine without persistence */
+    /* quota or private mode - the demo works fine without persistence */
   }
 }
 

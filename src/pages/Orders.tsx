@@ -12,6 +12,8 @@ import {
   Segmented,
 } from '../components/ui';
 import { getProduct } from '../data/products';
+import { productPhoto } from '../data/media';
+import { Avatar } from '../components/ui/Photo';
 import { buyerName } from '../data/buyers';
 import { formatAed, formatDate } from '../lib/metrics';
 import { Order } from '../types';
@@ -122,7 +124,7 @@ export function Orders() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="min-w-0 overflow-x-auto">
           {rows.length === 0 ? (
             <EmptyState
               icon={<Filter size={26} />}
@@ -161,9 +163,11 @@ export function Orders() {
                       </td>
                       <td className="max-w-[170px] truncate text-xs">{buyerName(o.buyerId)}</td>
                       <td className="text-xs font-medium">
-                        <span className="me-1.5">{product.emoji}</span>
-                        {product.name}
-                        <span className="ms-1.5 text-2xs text-charcoal-400">Grade {o.grade}</span>
+                        <span className="inline-flex items-center gap-2">
+                          <Avatar src={productPhoto(o.productId, 48, 48)} alt={product.name} size={26} tint={product.color} fallback={product.emoji} />
+                          {product.name}
+                          <span className="text-2xs text-charcoal-400">Grade {o.grade}</span>
+                        </span>
                       </td>
                       <td className="text-end text-xs font-semibold tabular-nums">
                         {o.qty.toLocaleString()} {o.unit}

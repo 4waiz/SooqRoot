@@ -71,7 +71,7 @@ export const EXCEPTIONS: ExceptionItem[] = [
     raisedAt: '2026-09-14T16:12:00',
     owner: 'Logistics',
     status: 'open',
-    recommendedAction: 'Move the Oasis Greens collection to the 06:30 slot — adds 40 minutes, no cold-chain impact.',
+    recommendedAction: 'Move the Oasis Greens collection to the 06:30 slot, adds 40 minutes, no cold-chain impact.',
     impactAed: 900,
   },
   {
@@ -79,7 +79,7 @@ export const EXCEPTIONS: ExceptionItem[] = [
     ref: 'EX-4415',
     type: 'Weather',
     severity: 'info',
-    title: 'Elevated heat advisory for Sweihan, 18–20 October',
+    title: 'Elevated heat advisory for Sweihan, 18-20 October',
     detail:
       'Forecast peaks of 43°C during the Sweihan harvest window. Open-field lines may need harvest brought forward to pre-dawn.',
     farmId: 'farm-sweihan-valley',
@@ -214,7 +214,7 @@ export const BATCH_PASSPORTS: BatchPassport[] = [
     certifications: ['ADAFSA GAP'],
     checkpoints: [
       { label: 'Commitment confirmed', at: '2026-08-18 09:12', by: 'Mariam Al Kaabi' },
-      { label: 'Harvest completed', at: '2026-09-10 05:40', by: 'Field team — Zakher' },
+      { label: 'Harvest completed', at: '2026-09-10 05:40', by: 'Field team. Zakher' },
       { label: 'Graded & packed', at: '2026-09-10 08:15', by: 'Packhouse 2', note: '96% Grade A' },
       { label: 'Collected', at: '2026-09-10 10:00', by: 'Reefer AD-22910' },
       { label: 'Delivered', at: '2026-09-11 06:20', by: 'Al Ain Central Kitchen' },
@@ -240,7 +240,7 @@ export const BATCH_PASSPORTS: BatchPassport[] = [
     certifications: ['ADAFSA GAP'],
     checkpoints: [
       { label: 'Commitment confirmed', at: '2026-08-18 11:30', by: 'Khalfan Al Ameri' },
-      { label: 'Harvest completed', at: '2026-09-10 06:05', by: 'Field team — Al Faqa' },
+      { label: 'Harvest completed', at: '2026-09-10 06:05', by: 'Field team. Al Faqa' },
       { label: 'Graded & packed', at: '2026-09-10 09:00', by: 'Packhouse 1', note: '91% Grade A' },
       { label: 'Collected', at: '2026-09-10 11:15', by: 'Reefer AD-22910' },
       { label: 'Delivered', at: '2026-09-11 06:20', by: 'Al Ain Central Kitchen' },
@@ -266,7 +266,7 @@ export const BATCH_PASSPORTS: BatchPassport[] = [
     certifications: ['ADAFSA GAP', 'GlobalG.A.P.'],
     checkpoints: [
       { label: 'Commitment confirmed', at: '2026-08-21 08:00', by: 'Yousef Al Blooshi' },
-      { label: 'Harvest completed', at: '2026-09-08 04:30', by: 'Field team — Al Khrair' },
+      { label: 'Harvest completed', at: '2026-09-08 04:30', by: 'Field team. Al Khrair' },
       { label: 'Graded & packed', at: '2026-09-08 06:10', by: 'Packhouse 3', note: '99% Grade A' },
       { label: 'Collected', at: '2026-09-08 07:45', by: 'Chilled van AD-77401' },
       { label: 'Delivered', at: '2026-09-09 05:50', by: 'The Sustainable City F&B' },
@@ -292,7 +292,7 @@ export const BATCH_PASSPORTS: BatchPassport[] = [
     certifications: ['ADAFSA GAP', 'Emirates Quality Mark'],
     checkpoints: [
       { label: 'Commitment confirmed', at: '2026-08-23 10:20', by: 'Imran Qureshi' },
-      { label: 'Harvest completed', at: '2026-09-09 05:15', by: 'Field team — Sweihan' },
+      { label: 'Harvest completed', at: '2026-09-09 05:15', by: 'Field team. Sweihan' },
       {
         label: 'Graded & packed',
         at: '2026-09-10 07:40',
@@ -404,7 +404,7 @@ export const COPILOT_THREADS: CopilotThread[] = [
   {
     id: 'th-01',
     farmId: 'farm-alain-018',
-    subject: 'Backup cover — 500 kg tomatoes, order SR-2610',
+    subject: 'Backup cover, 500 kg tomatoes, order SR-2610',
     updatedAt: '2026-09-15T09:10:00',
     unread: 1,
     intent: 'Commitment request',
@@ -412,7 +412,7 @@ export const COPILOT_THREADS: CopilotThread[] = [
   {
     id: 'th-02',
     farmId: 'farm-falaj',
-    subject: 'Grade A packing standard — refresher',
+    subject: 'Grade A packing standard, refresher',
     updatedAt: '2026-09-14T13:25:00',
     unread: 0,
     intent: 'Quality note',
@@ -453,8 +453,8 @@ export const COPILOT_MESSAGES: CopilotMessage[] = [
     at: '2026-09-15T09:10:00',
     direction: 'inbound',
     channel: 'WhatsApp',
-    text: 'Yes — accepted. We can harvest on 23 October instead if that helps.',
-    textAr: 'نعم — موافق. يمكننا الحصاد يوم ٢٣ أكتوبر إذا كان ذلك أفضل.',
+    text: 'Yes, accepted. We can harvest on 23 October instead if that helps.',
+    textAr: 'نعم, موافق. يمكننا الحصاد يوم ٢٣ أكتوبر إذا كان ذلك أفضل.',
     status: 'replied',
   },
   {
@@ -463,9 +463,9 @@ export const COPILOT_MESSAGES: CopilotMessage[] = [
     at: '2026-09-14T13:25:00',
     direction: 'outbound',
     channel: 'WhatsApp',
-    text: 'Khalfan — last three tomato batches graded just below the agreed Grade A band. Attached is the one-page packing standard. Key point: harvest before 07:00 and hold fruit below 14°C until collection.',
+    text: 'Khalfan, last three tomato batches graded just below the agreed Grade A band. Attached is the one-page packing standard. Key point: harvest before 07:00 and hold fruit below 14°C until collection.',
     textAr:
-      'خلفان — الدفعات الثلاث الأخيرة من الطماطم جاءت أقل قليلاً من نطاق الدرجة الأولى المتفق عليه. مرفق دليل التعبئة من صفحة واحدة. النقطة الأهم: الحصاد قبل الساعة ٧ صباحاً وحفظ الثمار تحت ١٤ درجة مئوية حتى الاستلام.',
+      'خلفان, الدفعات الثلاث الأخيرة من الطماطم جاءت أقل قليلاً من نطاق الدرجة الأولى المتفق عليه. مرفق دليل التعبئة من صفحة واحدة. النقطة الأهم: الحصاد قبل الساعة ٧ صباحاً وحفظ الثمار تحت ١٤ درجة مئوية حتى الاستلام.',
     status: 'read',
   },
   {
@@ -474,9 +474,9 @@ export const COPILOT_MESSAGES: CopilotMessage[] = [
     at: '2026-09-13T06:40:00',
     direction: 'outbound',
     channel: 'SMS',
-    text: 'Heat advisory for Sweihan 18–20 October, peaks of 43°C. Please move harvest to 04:30–07:00 and shade crates immediately after picking.',
+    text: 'Heat advisory for Sweihan 18-20 October, peaks of 43°C. Please move harvest to 04:30-07:00 and shade crates immediately after picking.',
     textAr:
-      'تحذير من ارتفاع الحرارة في سويحان من ١٨ إلى ٢٠ أكتوبر، بذروة ٤٣ درجة مئوية. يرجى نقل موعد الحصاد إلى ٤:٣٠–٧:٠٠ صباحاً وتظليل الصناديق فور القطف.',
+      'تحذير من ارتفاع الحرارة في سويحان من ١٨ إلى ٢٠ أكتوبر، بذروة ٤٣ درجة مئوية. يرجى نقل موعد الحصاد إلى ٤:٣٠, ٧:٠٠ صباحاً وتظليل الصناديق فور القطف.',
     status: 'delivered',
   },
   {
@@ -485,7 +485,7 @@ export const COPILOT_MESSAGES: CopilotMessage[] = [
     at: '2026-09-12T10:02:00',
     direction: 'outbound',
     channel: 'In-app',
-    text: 'Latifa — your October capacity is live on the network: 1,050 kg tomatoes and 640 kg leafy greens. You will now be scored against incoming buyer demand automatically.',
+    text: 'Latifa, your October capacity is live on the network: 1,050 kg tomatoes and 640 kg leafy greens. You will now be scored against incoming buyer demand automatically.',
     status: 'read',
   },
 ];
@@ -518,9 +518,9 @@ export const COPILOT_TEMPLATES: {
     id: 'tpl-quality',
     label: 'Quality note',
     intent: 'Quality note',
-    body: '{contact} — recent batches of {product} graded below the agreed band. Attached is the one-page packing standard. Key point: harvest before 07:00 and keep produce shaded and cool.',
+    body: '{contact}, recent batches of {product} graded below the agreed band. Attached is the one-page packing standard. Key point: harvest before 07:00 and keep produce shaded and cool.',
     bodyAr:
-      '{contact} — الدفعات الأخيرة من {product} جاءت أقل من النطاق المتفق عليه. مرفق دليل التعبئة من صفحة واحدة. النقطة الأهم: الحصاد قبل الساعة ٧ صباحاً وإبقاء المنتج مظللاً وبارداً.',
+      '{contact}, الدفعات الأخيرة من {product} جاءت أقل من النطاق المتفق عليه. مرفق دليل التعبئة من صفحة واحدة. النقطة الأهم: الحصاد قبل الساعة ٧ صباحاً وإبقاء المنتج مظللاً وبارداً.',
   },
   {
     id: 'tpl-logistics',

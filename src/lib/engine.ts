@@ -9,9 +9,9 @@ import { getProduct } from '../data/products';
    scores every farm in the network on eight weighted signals,
    then splits the order across farms under two risk rules:
 
-     • CONCENTRATION_CAP — no single farm carries more than 23%
+     • CONCENTRATION_CAP, no single farm carries more than 23%
        of one order (supply-concentration risk).
-     • BACKUP_CAP — no single backup farm is asked to stand
+     • BACKUP_CAP, no single backup farm is asked to stand
        behind more than 5% of one order.
 
    The same inputs always produce the same output. There is no
@@ -211,7 +211,7 @@ export function runCommitmentEngine(req: EngineRequest, farms: Farm[] = FARMS): 
   const product = getProduct(req.productId);
   const lot = lotSize(req.qty);
 
-  /* 1 — gather candidates across every harvest window in the network */
+  /* 1 - gather candidates across every harvest window in the network */
   const candidates: ScoredCandidate[] = [];
   for (const farm of farms) {
     for (const line of farm.capacity) {
@@ -219,7 +219,7 @@ export function runCommitmentEngine(req: EngineRequest, farms: Farm[] = FARMS): 
       const available = allocatable(line);
       if (available <= 0) continue;
 
-      // Freshness gate — produce harvested more than one shelf life before the
+      // Freshness gate - produce harvested more than one shelf life before the
       // delivery date cannot serve this order at all.
       const slackDays = dayDiff(line.harvestWindowEnd, req.requiredBy);
       if (slackDays > product.shelfLifeDays) continue;
@@ -235,9 +235,9 @@ export function runCommitmentEngine(req: EngineRequest, farms: Farm[] = FARMS): 
         ? `Harvest window closes ${new Date(line.harvestWindowEnd).toLocaleDateString('en-GB', {
             day: 'numeric',
             month: 'short',
-          })} — after the delivery date, so held as backup cover.`
+          })}, after the delivery date, so held as backup cover.`
         : gradeTooLow
-          ? `Grade ${req.grade} probability below the 60% primary threshold — held as backup cover.`
+          ? `Grade ${req.grade} probability below the 60% primary threshold, held as backup cover.`
           : `Harvest completes ${slackDays}d before delivery, inside the ${product.shelfLifeDays}-day freshness window.`;
 
       candidates.push({ farm, line, available, score, signals, eligibility, reason });
@@ -248,7 +248,7 @@ export function runCommitmentEngine(req: EngineRequest, farms: Farm[] = FARMS): 
 
   const networkAvailable = candidates.reduce((s, c) => s + c.available, 0);
   trace.push(
-    `Scanned ${farms.length} farms — ${candidates.length} harvest windows carry ${product.name} inside the ${product.shelfLifeDays}-day freshness window (${networkAvailable.toLocaleString()} ${req.unit} available).`
+    `Scanned ${farms.length} farms, ${candidates.length} harvest windows carry ${product.name} inside the ${product.shelfLifeDays}-day freshness window (${networkAvailable.toLocaleString()} ${req.unit} available).`
   );
 
   const primaryPool = candidates.filter((c) => c.eligibility === 'primary');
@@ -258,16 +258,16 @@ export function runCommitmentEngine(req: EngineRequest, farms: Farm[] = FARMS): 
   );
 
   // Concentration limit spreads supply risk, but never below an even split of
-  // the order across the eligible pool — the cap must not cause an under-fill.
+  // the order across the eligible pool - the cap must not cause an under-fill.
   const evenSplit = req.qty / Math.max(1, primaryPool.length);
   const perFarmCap = floorTo(Math.max(req.qty * CONCENTRATION_CAP, evenSplit), lot);
   trace.push(
-    `Concentration limit applied: ${perFarmCap.toLocaleString()} ${req.unit} per farm — the greater of ${Math.round(
+    `Concentration limit applied: ${perFarmCap.toLocaleString()} ${req.unit} per farm, the greater of ${Math.round(
       CONCENTRATION_CAP * 100
     )}% of the order and an even split across ${primaryPool.length} eligible windows.`
   );
 
-  /* 2 — allocate primary */
+  /* 2 - allocate primary */
   const primary: CommitmentAllocation[] = [];
   let remaining = req.qty;
   primaryPool.forEach((cand, i) => {
@@ -286,7 +286,7 @@ export function runCommitmentEngine(req: EngineRequest, farms: Farm[] = FARMS): 
       harvestDate: commitmentDate(cand.line, req.requiredBy),
       batchId: batchId(orderRef, cand.farm, i),
       rationale: [
-        `Score ${cand.score.toFixed(1)} — rank ${i + 1} of ${primaryPool.length} eligible farms.`,
+        `Score ${cand.score.toFixed(1)}, rank ${i + 1} of ${primaryPool.length} eligible farms.`,
         take === perFarmCap
           ? `Capped at the ${Math.round(CONCENTRATION_CAP * 100)}% concentration limit.`
           : `Full uncommitted volume of ${cand.available.toLocaleString()} ${req.unit} taken.`,
@@ -297,10 +297,10 @@ export function runCommitmentEngine(req: EngineRequest, farms: Farm[] = FARMS): 
 
   const primaryQty = primary.reduce((s, a) => s + a.qty, 0);
   trace.push(
-    `Primary commitment built across ${primary.length} farms — ${primaryQty.toLocaleString()} ${req.unit} of ${req.qty.toLocaleString()} ${req.unit} requested.`
+    `Primary commitment built across ${primary.length} farms, ${primaryQty.toLocaleString()} ${req.unit} of ${req.qty.toLocaleString()} ${req.unit} requested.`
   );
 
-  /* 3 — backup cover */
+  /* 3 - backup cover */
   const shortfall = Math.max(0, req.qty - primaryQty);
   const backupPerFarmCap = Math.max(lot, floorTo(req.qty * BACKUP_CAP, lot));
   const backupTarget = Math.max(shortfall, backupPerFarmCap);
@@ -338,7 +338,7 @@ export function runCommitmentEngine(req: EngineRequest, farms: Farm[] = FARMS): 
   }
 
   const coveragePct = Math.min(100, Math.round(((primaryQty + backupQty) / req.qty) * 100));
-  trace.push(`Fulfilment coverage ${coveragePct}% — commitment pack ready to issue to farms.`);
+  trace.push(`Fulfilment coverage ${coveragePct}%, commitment pack ready to issue to farms.`);
 
   return {
     request: req,

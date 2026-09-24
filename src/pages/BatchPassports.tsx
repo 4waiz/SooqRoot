@@ -14,6 +14,8 @@ import {
 import { useStore } from '../state/AppStore';
 import { Badge, Button, Card, DataRow, Modal, PageHeader } from '../components/ui';
 import { getProduct } from '../data/products';
+import { farmPhoto, productPhoto } from '../data/media';
+import { Avatar, Photo } from '../components/ui/Photo';
 import { getFarm } from '../data/farms';
 import { getBuyer } from '../data/buyers';
 import { BATCH_PASSPORTS } from '../data/operations';
@@ -64,14 +66,21 @@ export function BatchPassports() {
               onClick={() => setOpen(p)}
               className="sr-card sr-card-hover group overflow-hidden p-0 text-start"
             >
-              <div className="flex items-center justify-between bg-brand-gradient px-4 py-3 text-white">
-                <div>
-                  <div className="font-mono text-2xs font-semibold text-white/70">{p.batchId}</div>
-                  <div className="mt-0.5 text-sm font-bold">
-                    {product.emoji} {product.name}
+              <div className="relative overflow-hidden bg-brand-gradient px-4 py-3 text-white">
+                <Photo
+                  src={productPhoto(p.productId, 560, 200)}
+                  alt={product.name}
+                  tint={product.color}
+                  className="absolute inset-0 h-full w-full opacity-40"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-brand-950/90 to-brand-900/50" />
+                <div className="relative flex items-center justify-between">
+                  <div>
+                    <div className="font-mono text-2xs font-semibold text-white/75">{p.batchId}</div>
+                    <div className="mt-0.5 text-sm font-bold">{product.name}</div>
                   </div>
+                  <ShieldCheck size={20} className="text-white/85" />
                 </div>
-                <ShieldCheck size={20} className="text-white/85" />
               </div>
 
               <div className="p-4">
@@ -85,7 +94,8 @@ export function BatchPassports() {
 
                 <div className="mt-3 space-y-1.5 text-2xs">
                   <div className="flex items-center gap-1.5 text-charcoal-500 dark:text-charcoal-400">
-                    <Sprout size={11} /> {farm?.name}
+                    <Avatar src={farmPhoto(p.farmId, 48, 48)} alt={farm?.name ?? ''} size={18} />
+                    {farm?.name}
                   </div>
                   <div className="flex items-center gap-1.5 text-charcoal-500 dark:text-charcoal-400">
                     <Package size={11} /> {buyer?.name}
@@ -195,13 +205,13 @@ function PassportModal({
                     {order.ref}
                   </Link>
                 ) : (
-                  '—'
+                  ', '
                 )
               }
             />
             <DataRow label="Grade" value={`Grade ${passport.grade}`} />
-            <DataRow label="Farm" value={farm?.name ?? '—'} />
-            <DataRow label="Buyer" value={buyer?.name ?? '—'} />
+            <DataRow label="Farm" value={farm?.name ?? ', '} />
+            <DataRow label="Buyer" value={buyer?.name ?? ', '} />
             <DataRow label="Harvested" value={formatDate(passport.harvestedOn, 'long')} />
             <DataRow label="Packed" value={formatDate(passport.packedOn, 'long')} />
             {passport.deliveredOn ? (

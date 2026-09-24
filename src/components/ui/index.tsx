@@ -1,5 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
+import { useSettle } from './Motion';
 
 /* ============================================================
    SooqRoot UI primitives
@@ -38,8 +39,8 @@ export function CardHeader({
   className?: string;
 }) {
   return (
-    <div className={`flex items-start justify-between gap-4 ${className}`}>
-      <div className="flex items-start gap-3 min-w-0">
+    <div className={`flex flex-wrap items-start justify-between gap-x-4 gap-y-3 ${className}`}>
+      <div className="flex min-w-0 flex-1 items-start gap-3">
         {icon ? (
           <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600 dark:bg-brand-900 dark:text-brand-200">
             {icon}
@@ -50,7 +51,7 @@ export function CardHeader({
           {subtitle ? <p className="sr-sub mt-0.5">{subtitle}</p> : null}
         </div>
       </div>
-      {action ? <div className="shrink-0">{action}</div> : null}
+      {action ? <div className="min-w-0 shrink-0 max-w-full">{action}</div> : null}
     </div>
   );
 }
@@ -185,7 +186,7 @@ interface FieldProps {
   error?: string;
   children: React.ReactNode;
   htmlFor?: string;
-  /** Applied to the field wrapper — use for grid spans. */
+  /** Applied to the field wrapper - use for grid spans. */
   containerClassName?: string;
 }
 
@@ -284,7 +285,8 @@ export function Progress({
   className?: string;
   height?: string;
 }) {
-  const color = tone === 'brand' ? '#2a714c' : HEALTH_HEX[tone];
+  const color = tone === 'brand' ? '#3c8c61' : HEALTH_HEX[tone];
+  const settled = useSettle(Math.max(0, Math.min(100, value)));
   return (
     <div
       className={`w-full overflow-hidden rounded-full bg-charcoal-100 dark:bg-charcoal-800 ${height} ${className}`}
@@ -294,8 +296,8 @@ export function Progress({
       aria-valuemax={100}
     >
       <div
-        className="h-full rounded-full transition-[width] duration-700 ease-spring"
-        style={{ width: `${Math.max(0, Math.min(100, value))}%`, background: color }}
+        className="h-full rounded-full transition-[width] duration-1000 ease-spring"
+        style={{ width: `${settled}%`, background: color }}
       />
     </div>
   );
@@ -450,7 +452,7 @@ export function PageHeader({
         <h1 className="sr-h1">{title}</h1>
         {subtitle ? <p className="sr-sub mt-1.5 max-w-2xl">{subtitle}</p> : null}
       </div>
-      {actions ? <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
+      {actions ? <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-2">{actions}</div> : null}
     </header>
   );
 }

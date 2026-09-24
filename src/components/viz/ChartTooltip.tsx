@@ -23,7 +23,7 @@ export function ChartTooltip({
 }) {
   if (!active || !payload || payload.length === 0) return null;
   return (
-    <div className="rounded-xl border border-charcoal-100 bg-white/97 px-3 py-2 shadow-lift backdrop-blur dark:border-charcoal-700 dark:bg-charcoal-900/97">
+    <div className="rounded-xl border border-charcoal-100 bg-white/95 px-3 py-2 shadow-lift backdrop-blur dark:border-charcoal-700 dark:bg-charcoal-900/95">
       {label !== undefined ? (
         <div className="mb-1 text-2xs font-bold uppercase tracking-wider text-charcoal-400">{label}</div>
       ) : null}

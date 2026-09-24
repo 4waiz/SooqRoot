@@ -124,7 +124,7 @@ export function getProduct(id: string): Product {
     PRODUCT_MAP[id] ?? {
       id,
       name: 'Unknown product',
-      nameAr: '—',
+      nameAr: ', ',
       category: 'vegetable',
       unit: 'kg',
       refPrice: 0,

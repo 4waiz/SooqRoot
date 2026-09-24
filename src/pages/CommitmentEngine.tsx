@@ -26,6 +26,9 @@ import {
 } from '../components/ui';
 import { PRODUCTS, getProduct } from '../data/products';
 import { FARM_MAP } from '../data/farms';
+import { farmPhoto, productPhoto } from '../data/media';
+import { Avatar, Photo } from '../components/ui/Photo';
+import { CountUp } from '../components/ui/Motion';
 import { networkWithout } from '../data/orders';
 import {
   CANONICAL_REQUEST,
@@ -121,7 +124,7 @@ export function CommitmentEngine() {
       <PageHeader
         eyebrow="Procurement"
         title="Commitment Engine"
-        subtitle="Deterministic pre-harvest allocation. One buyer order is split across the farm network under explicit supply-risk rules — the same inputs always produce the same commitment pack."
+        subtitle="Deterministic pre-harvest allocation. One buyer order is split across the farm network under explicit supply-risk rules, the same inputs always produce the same commitment pack."
         actions={
           <>
             {phase !== 'idle' ? (
@@ -140,7 +143,14 @@ export function CommitmentEngine() {
       <section className="grid gap-4 xl:grid-cols-[minmax(0,380px)_1fr]">
         <Card>
           <CardHeader title="Buyer order" subtitle="The request being allocated" icon={<Target size={16} />} />
-          <div className="mt-4 rounded-xl bg-brand-gradient p-5 text-white">
+          <div className="relative mt-4 overflow-hidden rounded-xl bg-brand-gradient p-5 text-white">
+            <Photo
+              src={productPhoto(req.productId, 720, 400)}
+              alt={product.name}
+              className="absolute inset-0 h-full w-full opacity-25"
+              tint={product.color}
+            />
+            <div className="relative">
             <div className="flex items-center gap-2 text-2xs font-semibold uppercase tracking-widest text-white/70">
               <span className="font-mono">{req.orderRef}</span>
               <span>·</span>
@@ -165,6 +175,7 @@ export function CommitmentEngine() {
                 <div className="text-white/60">Packaging</div>
                 <div className="font-semibold">{req.packaging}</div>
               </div>
+            </div>
             </div>
           </div>
 
@@ -263,7 +274,7 @@ export function CommitmentEngine() {
               </p>
               <p className="sr-sub mt-1 max-w-sm text-xs">
                 The engine scores each on reliability, fulfilment history, grade fit, distance, harvest
-                timing, packaging and headroom — then splits the order under the concentration limit.
+                timing, packaging and headroom, then splits the order under the concentration limit.
               </p>
               <Button className="mt-5" icon={<Play size={15} />} onClick={run}>
                 Run Commitment Engine
@@ -288,8 +299,11 @@ export function CommitmentEngine() {
                       style={{ animationDelay: `${i * 30}ms` }}
                     >
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                        <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-canvas-soft font-mono text-2xs font-bold text-charcoal-500 dark:bg-charcoal-950">
-                          {isBackup ? 'B' : i + 1}
+                        <span className="relative shrink-0">
+                          <Avatar src={farmPhoto(farm.id, 64, 64)} alt={farm.name} size={30} />
+                          <span className="absolute -bottom-1 -end-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-white font-mono text-[9px] font-bold text-charcoal-600 ring-1 ring-charcoal-200 dark:bg-charcoal-900 dark:text-charcoal-200 dark:ring-charcoal-700">
+                            {isBackup ? 'B' : i + 1}
+                          </span>
                         </span>
                         <Link
                           to={`/farms/${farm.id}`}
@@ -435,12 +449,12 @@ export function CommitmentEngine() {
               <RuleRow
                 title="Concentration limit"
                 value={`${Math.round(CONCENTRATION_CAP * 100)}%`}
-                body="No single farm carries more than this share of one order — but never less than an even split across the eligible pool, so the cap can never cause an under-fill."
+                body="No single farm carries more than this share of one order, but never less than an even split across the eligible pool, so the cap can never cause an under-fill."
               />
               <RuleRow
                 title="Backup cover limit"
                 value={`${Math.round(BACKUP_CAP * 100)}%`}
-                body="Backup farms stand behind at most this share each. Backup cover is contingent — it does not consume network capacity."
+                body="Backup farms stand behind at most this share each. Backup cover is contingent, it does not consume network capacity."
               />
               <RuleRow
                 title="Freshness gate"
@@ -480,7 +494,7 @@ export function CommitmentEngine() {
               ))}
             </div>
             <p className="mt-3 border-t border-charcoal-100 pt-3 text-2xs leading-relaxed text-charcoal-400 dark:border-charcoal-800">
-              Weights sum to 100. The engine is fully deterministic — no randomness anywhere in the
+              Weights sum to 100. The engine is fully deterministic, no randomness anywhere in the
               allocation path.
             </p>
           </Card>
@@ -495,7 +509,7 @@ export function CommitmentEngine() {
             subtitle={`Every harvest window in the network evaluated for this order`}
           />
         </div>
-        <div className="mt-4 overflow-x-auto">
+        <div className="mt-4 min-w-0 overflow-x-auto">
           <table className="sr-table min-w-[900px]">
             <thead>
               <tr>
@@ -526,7 +540,7 @@ export function CommitmentEngine() {
                       <div className="text-2xs text-charcoal-400">{c.farm.area}</div>
                     </td>
                     <td className="text-2xs tabular-nums">
-                      {formatDate(c.line.harvestWindowStart)} – {formatDate(c.line.harvestWindowEnd)}
+                      {formatDate(c.line.harvestWindowStart)}, {formatDate(c.line.harvestWindowEnd)}
                     </td>
                     <td className="text-xs font-semibold tabular-nums">
                       {c.available.toLocaleString()} {c.line.unit}
@@ -594,7 +608,7 @@ function Totals({
     <div className="rounded-xl border border-charcoal-100 p-3 dark:border-charcoal-800">
       <div className="text-2xs uppercase tracking-wider text-charcoal-400">{label}</div>
       <div className="sr-num mt-1 text-xl" style={{ color: tone }}>
-        {format ? format(value) : value.toLocaleString()}
+        {format ? format(value) : <CountUp value={value} />}
         {unit ? <span className="ms-1 text-2xs font-semibold text-charcoal-400">{unit}</span> : null}
       </div>
     </div>

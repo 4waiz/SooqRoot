@@ -21,6 +21,8 @@ import {
   Segmented,
 } from '../components/ui';
 import { getFarm } from '../data/farms';
+import { farmPhoto } from '../data/media';
+import { Avatar } from '../components/ui/Photo';
 import { getProduct } from '../data/products';
 import {
   COPILOT_MESSAGES,
@@ -62,12 +64,12 @@ export function FarmerCopilot() {
     const product = farmCommitment ? getProduct(farmCommitment.order.productId) : null;
     const filled = body
       .replace('{contact}', farm.contactName)
-      .replace('{qty}', farmCommitment ? `${farmCommitment.allocation.qty.toLocaleString()} ${farmCommitment.allocation.unit}` : '—')
-      .replace('{product}', product ? (lang === 'ar' ? product.nameAr : product.name) : '—')
+      .replace('{qty}', farmCommitment ? `${farmCommitment.allocation.qty.toLocaleString()} ${farmCommitment.allocation.unit}` : ', ')
+      .replace('{product}', product ? (lang === 'ar' ? product.nameAr : product.name) : ', ')
       .replace('{grade}', farmCommitment?.order.grade ?? 'A')
-      .replace('{order}', farmCommitment?.order.ref ?? '—')
-      .replace('{date}', farmCommitment ? formatDate(farmCommitment.allocation.harvestDate, 'long') : '—')
-      .replace('{packaging}', farmCommitment?.order.packaging ?? '—');
+      .replace('{order}', farmCommitment?.order.ref ?? ', ')
+      .replace('{date}', farmCommitment ? formatDate(farmCommitment.allocation.harvestDate, 'long') : ', ')
+      .replace('{packaging}', farmCommitment?.order.packaging ?? ', ');
     setDraft(filled);
   };
 
@@ -93,7 +95,7 @@ export function FarmerCopilot() {
       <PageHeader
         eyebrow="Communication"
         title="Farmer Copilot"
-        subtitle="Commitments, harvest instructions and quality guidance reach farms on the channel they already use — in the language they prefer."
+        subtitle="Commitments, harvest instructions and quality guidance reach farms on the channel they already use, in the language they prefer."
         actions={
           <>
             <Badge tone="brand" icon={<Smartphone size={12} />}>
@@ -132,6 +134,7 @@ export function FarmerCopilot() {
                   }`}
                 >
                   <div className="flex items-center gap-2">
+                    <Avatar src={farmPhoto(t.farmId, 64, 64)} alt={f?.name ?? ''} size={28} />
                     {f ? <HealthDot status={f.status} /> : null}
                     <span className="min-w-0 flex-1 truncate text-xs font-bold text-charcoal-900 dark:text-white">
                       {f?.name}
@@ -160,9 +163,7 @@ export function FarmerCopilot() {
           <Card padded={false} className="flex flex-col overflow-hidden">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-charcoal-100 p-4 dark:border-charcoal-800">
               <div className="flex items-center gap-3">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-gradient text-xs font-bold text-white">
-                  {farm?.code.slice(-3)}
-                </span>
+                <Avatar src={farmPhoto(thread.farmId, 96, 96)} alt={farm?.name ?? ''} size={40} fallback={farm?.code.slice(-3)} />
                 <div>
                   <div className="text-sm font-bold text-charcoal-900 dark:text-white">{farm?.name}</div>
                   <div className="flex items-center gap-2 text-2xs text-charcoal-400">

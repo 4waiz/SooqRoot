@@ -29,8 +29,14 @@ import {
 } from 'recharts';
 import { useStore } from '../state/AppStore';
 import { Badge, Card, CardHeader, HEALTH_HEX, HEALTH_TONE, HealthDot, Progress } from '../components/ui';
-import { Metric, Ring } from '../components/ui/Metric';
-import { NetworkLegend, NetworkMap } from '../components/viz/NetworkMap';
+import { Avatar, ImagePanel, Photo } from '../components/ui/Photo';
+import { SCENE, buyerPhoto, farmPhoto, productPhoto } from '../data/media';
+import { buyerName } from '../data/buyers';
+import { useChartColors } from '../lib/theme';
+import { Metric } from '../components/ui/Metric';
+import { MapLegend, SupplyMap } from '../components/viz/SupplyMap';
+import { TargetGauge } from '../components/ui/Gauge';
+import { CountUp, Reveal } from '../components/ui/Motion';
 import { getProduct } from '../data/products';
 import { farmName } from '../data/farms';
 import { MONTHLY } from '../data/analytics';
@@ -50,6 +56,7 @@ const KIND_ICON = {
 
 export function ControlTower() {
   const { metrics, orders, farms, buyers, exceptions, activity, session } = useStore();
+  const chart = useChartColors();
 
   const greeting = useMemo(() => {
     const h = new Date().getHours();
@@ -60,7 +67,7 @@ export function ControlTower() {
 
   const firstName = session?.displayName.split(' ')[0] ?? 'there';
 
-  /* Upcoming demand — the next orders needing attention, soonest first */
+  /* Upcoming demand - the next orders needing attention, soonest first */
   const upcoming = useMemo(
     () =>
       orders
@@ -100,29 +107,39 @@ export function ControlTower() {
   return (
     <div className="space-y-6">
       {/* ---------------- Greeting ---------------- */}
-      <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h1 className="sr-h1">
-            {greeting}, {firstName}
-          </h1>
-          <p className="sr-sub mt-1.5">Here&rsquo;s your local sourcing network today.</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge tone="neutral" icon={<CalendarClock size={12} />}>
-            Cycle CY-2610 · October 2026
-          </Badge>
-          <Link to="/engine" className="sr-btn-primary" >
+      <ImagePanel
+        src={SCENE.agriNetwork(1600)}
+        alt="UAE farms, greenhouses and buyers connected by commitment flows"
+        overlay="left"
+        priority
+        className="rounded-2xl shadow-card"
+      >
+        <header className="flex min-h-[184px] flex-col justify-between gap-5 p-6 text-white md:flex-row md:items-end md:p-8">
+          <div className="max-w-xl">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-2xs font-semibold backdrop-blur">
+              <CalendarClock size={12} />
+              Cycle CY-2610 · October 2026
+            </span>
+            <h1 className="mt-3 font-display text-2xl font-bold tracking-tight drop-shadow-sm md:text-[2rem] md:leading-tight">
+              {greeting}, {firstName}
+            </h1>
+            <p className="mt-1.5 text-sm text-white/85">Here&rsquo;s your local sourcing network today.</p>
+          </div>
+          <Link
+            to="/engine"
+            className="sr-btn shrink-0 self-start bg-white text-brand-800 shadow-soft hover:bg-brand-50 md:self-auto"
+          >
             <Cpu size={15} />
             Run Commitment Engine
           </Link>
-        </div>
-      </header>
+        </header>
+      </ImagePanel>
 
       {/* ---------------- Metric row ---------------- */}
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-3 xl:grid-cols-6">
         <Metric
           label="Local Procurement"
-          value={metrics.localProcurementPct.toFixed(1)}
+          value={<CountUp value={metrics.localProcurementPct} decimals={1} />}
           unit="%"
           delta={metrics.localProcurementDelta}
           deltaSuffix="pp"
@@ -134,7 +151,7 @@ export function ControlTower() {
         />
         <Metric
           label="Active UAE Farms"
-          value={metrics.activeFarms}
+          value={<CountUp value={metrics.activeFarms} />}
           delta={metrics.activeFarmsDelta}
           hint="new this quarter"
           icon={<Sprout size={15} />}
@@ -143,7 +160,7 @@ export function ControlTower() {
         />
         <Metric
           label="Open Commitments"
-          value={formatAed(metrics.openCommitmentsAed, { compact: true })}
+          value={<CountUp value={metrics.openCommitmentsAed} format={(n) => formatAed(n, { compact: true })} />}
           delta={metrics.openCommitmentsDelta}
           deltaSuffix="%"
           hint="pre-harvest, this cycle"
@@ -154,7 +171,7 @@ export function ControlTower() {
         />
         <Metric
           label="Pre-Harvest Match Rate"
-          value={metrics.preHarvestMatchPct}
+          value={<CountUp value={metrics.preHarvestMatchPct} />}
           unit="%"
           delta={metrics.preHarvestMatchDelta}
           deltaSuffix="pp"
@@ -165,7 +182,7 @@ export function ControlTower() {
         />
         <Metric
           label="Expected Fill Rate"
-          value={metrics.expectedFillPct}
+          value={<CountUp value={metrics.expectedFillPct} />}
           unit="%"
           delta={metrics.expectedFillDelta}
           deltaSuffix="pp"
@@ -177,7 +194,7 @@ export function ControlTower() {
         />
         <Metric
           label="At-Risk Orders"
-          value={metrics.atRiskOrders}
+          value={<CountUp value={metrics.atRiskOrders} />}
           delta={metrics.atRiskDelta}
           deltaGoodWhen="down"
           hint="needing intervention"
@@ -188,7 +205,7 @@ export function ControlTower() {
       </section>
 
       {/* ---------------- Target + upcoming demand ---------------- */}
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,340px)_1fr]">
+      <Reveal as="section" className="grid gap-4 xl:grid-cols-[minmax(0,340px)_1fr]">
         <Card className="flex flex-col">
           <CardHeader
             title="Local Procurement Target"
@@ -196,20 +213,13 @@ export function ControlTower() {
             icon={<Target size={16} />}
           />
           <div className="mt-4 flex flex-1 flex-col items-center justify-center">
-            <Ring
-              value={(metrics.lpiCurrent / metrics.lpiTarget) * 100}
-              target={100}
-              size={180}
-              stroke={16}
-              color="#2a714c"
-              label={
-                <span className="sr-num text-[2.1rem] leading-none">{metrics.lpiCurrent}%</span>
-              }
-              sublabel={
-                <span className="mt-1 text-2xs font-semibold uppercase tracking-widest text-charcoal-400">
-                  Current
-                </span>
-              }
+            <TargetGauge
+              value={metrics.lpiCurrent}
+              target={metrics.lpiTarget}
+              max={40}
+              size={264}
+              label="Local share"
+              marker={{ value: metrics.localProcurementPct, label: `This month ${metrics.localProcurementPct}%` }}
             />
             <div className="mt-5 grid w-full grid-cols-3 gap-2 text-center">
               <div className="sr-inset px-2 py-2.5">
@@ -230,7 +240,7 @@ export function ControlTower() {
               </div>
             </div>
             <p className="mt-3 text-center text-2xs leading-relaxed text-charcoal-400">
-              This month is running at {metrics.localProcurementPct}% — above target. Closing the
+              This month is running at {metrics.localProcurementPct}%, above target. Closing the
               trailing gap needs {metrics.lpiGap}pp more sustained local share.
             </p>
             <Link
@@ -262,19 +272,28 @@ export function ControlTower() {
                 <Link
                   key={o.id}
                   to={`/orders/${o.id}`}
-                  className="group flex flex-col rounded-xl border border-charcoal-100 bg-canvas-soft p-4 transition-all duration-300 ease-spring hover:-translate-y-0.5 hover:border-charcoal-200 hover:shadow-lift dark:border-charcoal-800 dark:bg-charcoal-950"
+                  className="group flex flex-col overflow-hidden rounded-xl border border-charcoal-100 bg-canvas-soft transition-all duration-300 ease-spring hover:-translate-y-0.5 hover:border-charcoal-200 hover:shadow-lift dark:border-charcoal-800 dark:bg-charcoal-950 dark:hover:border-charcoal-700"
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg leading-none">{product.emoji}</span>
-                      <span className="text-sm font-bold text-charcoal-900 dark:text-white">
-                        {product.name}
+                  <div className="relative h-24">
+                    <Photo
+                      src={productPhoto(o.productId, 520, 200)}
+                      alt={product.name}
+                      tint={product.color}
+                      fallback={product.emoji}
+                      className="h-full w-full"
+                      imgClassName="transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-charcoal-950/75 via-charcoal-950/10 to-transparent" />
+                    <div className="absolute inset-x-3 bottom-2.5 flex items-center justify-between gap-2">
+                      <span className="text-sm font-bold text-white drop-shadow">{product.name}</span>
+                      <span className="rounded-full bg-white/90 p-1 shadow-sm dark:bg-charcoal-900/90">
+                        <HealthDot status={o.health} />
                       </span>
                     </div>
-                    <HealthDot status={o.health} />
                   </div>
 
-                  <div className="mt-3 flex items-baseline gap-1.5">
+                  <div className="flex flex-1 flex-col p-4 pt-3">
+                  <div className="flex items-baseline gap-1.5">
                     <span className="sr-num text-2xl leading-none">{o.qty.toLocaleString()}</span>
                     <span className="text-xs font-semibold text-charcoal-400">{o.unit}</span>
                   </div>
@@ -298,23 +317,51 @@ export function ControlTower() {
                     </div>
                   </div>
 
+                  <div className="mt-4 space-y-3 border-t border-charcoal-100 pt-3 dark:border-charcoal-800">
+                    <div className="flex items-center gap-2">
+                      <Avatar src={buyerPhoto(o.buyerId, 80, 80)} alt={buyerName(o.buyerId)} size={24} />
+                      <div className="min-w-0">
+                        <div className="text-[10px] uppercase tracking-wider text-charcoal-400">Buyer</div>
+                        <div className="truncate text-2xs font-semibold text-charcoal-700 dark:text-charcoal-200">
+                          {buyerName(o.buyerId)}
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] uppercase tracking-wider text-charcoal-400">
+                        {o.allocations.length} farm{o.allocations.length === 1 ? '' : 's'} committed
+                      </div>
+                      <div className="mt-1.5 flex -space-x-2">
+                        {o.allocations.slice(0, 6).map((a) => (
+                          <Avatar
+                            key={a.id}
+                            src={farmPhoto(a.farmId, 80, 80)}
+                            alt={a.farmId}
+                            size={26}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="mt-auto flex items-center justify-between border-t border-charcoal-100 pt-3 dark:border-charcoal-800">
                     <span className="text-2xs text-charcoal-400">
                       Delivery {formatDate(o.requiredBy)}
                     </span>
                     <Badge tone={HEALTH_TONE[o.health]}>{o.ref}</Badge>
                   </div>
+                  </div>
                 </Link>
               );
             })}
           </div>
         </Card>
-      </section>
+      </Reveal>
 
       {/* ---------------- Network overview ---------------- */}
-      <section className="grid gap-4 xl:grid-cols-[1fr_minmax(0,340px)]">
-        <Card padded={false} className="overflow-hidden">
-          <div className="p-5 pb-0">
+      <Reveal as="section" className="grid gap-4 xl:grid-cols-[1fr_minmax(0,340px)]">
+        <Card padded={false} className="flex flex-col overflow-hidden">
+          <div className="p-5 pb-4">
             <CardHeader
               title="Network Overview"
               subtitle="Live commitment flows between farms and buyer delivery points"
@@ -326,13 +373,15 @@ export function ControlTower() {
               }
             />
           </div>
-          <NetworkMap farms={farms} buyers={buyers} links={links} height={340} />
+          <div className="min-h-[420px] flex-1 px-3">
+            <SupplyMap farms={farms} buyers={buyers} links={links} fill />
+          </div>
           <div className="border-t border-charcoal-100 px-5 py-3 dark:border-charcoal-800">
-            <NetworkLegend />
+            <MapLegend />
           </div>
         </Card>
 
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <Card>
             <CardHeader
               title="Exceptions"
@@ -414,20 +463,27 @@ export function ControlTower() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <div className="truncate text-xs font-semibold text-charcoal-800 dark:text-charcoal-100">
-                        {p.emoji} {p.name} · {h.qty.toLocaleString()} {h.unit}
+                        {p.name} · {h.qty.toLocaleString()} {h.unit}
                       </div>
                       <div className="truncate text-2xs text-charcoal-400">{farmName(h.farmId)}</div>
                     </div>
+                    <Avatar
+                      src={productPhoto(h.productId, 96, 96)}
+                      alt={p.name}
+                      size={30}
+                      tint={p.color}
+                      fallback={p.emoji}
+                    />
                   </div>
                 );
               })}
             </div>
           </Card>
         </div>
-      </section>
+      </Reveal>
 
       {/* ---------------- Trends + activity ---------------- */}
-      <section className="grid gap-4 xl:grid-cols-3">
+      <Reveal as="section" className="grid gap-4 xl:grid-cols-3">
         <Card>
           <CardHeader
             title="Local Sourcing Trend"
@@ -439,8 +495,8 @@ export function ControlTower() {
               <AreaChart data={trend} margin={{ top: 4, right: 4, left: -22, bottom: 0 }}>
                 <defs>
                   <linearGradient id="ct-local" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#2a714c" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#2a714c" stopOpacity={0} />
+                    <stop offset="0%" stopColor={chart.brand} stopOpacity={0.3} />
+                    <stop offset="100%" stopColor={chart.brand} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -451,7 +507,7 @@ export function ControlTower() {
                   type="monotone"
                   dataKey="local"
                   name="Local share"
-                  stroke="#2a714c"
+                  stroke={chart.brand}
                   strokeWidth={2.2}
                   fill="url(#ct-local)"
                 />
@@ -486,8 +542,8 @@ export function ControlTower() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="month" tickLine={false} axisLine={false} />
                 <YAxis tickLine={false} axisLine={false} domain={[80, 100]} width={38} />
-                <Tooltip content={<ChartTooltip suffix="%" />} cursor={{ fill: 'rgba(60,140,97,0.06)' }} />
-                <Bar dataKey="fill" name="Fill rate" fill="#5ca87e" radius={[4, 4, 0, 0]} maxBarSize={26} />
+                <Tooltip content={<ChartTooltip suffix="%" />} cursor={{ fill: chart.cursor }} />
+                <Bar dataKey="fill" name="Fill rate" fill={chart.brand} radius={[4, 4, 0, 0]} maxBarSize={26} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -525,7 +581,7 @@ export function ControlTower() {
             })}
           </div>
         </Card>
-      </section>
+      </Reveal>
     </div>
   );
 }

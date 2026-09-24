@@ -4,6 +4,9 @@ import { CalendarDays, ChevronLeft, ChevronRight, Sprout } from 'lucide-react';
 import { useStore } from '../state/AppStore';
 import { Badge, Card, CardHeader, EmptyState, PageHeader, Segmented } from '../components/ui';
 import { getProduct } from '../data/products';
+import { productPhoto } from '../data/media';
+import { Avatar } from '../components/ui/Photo';
+import { useReadableColor } from '../lib/theme';
 import { farmName } from '../data/farms';
 import { HARVEST_EVENTS } from '../data/operations';
 import { formatDate } from '../lib/metrics';
@@ -12,8 +15,16 @@ const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 export function HarvestCalendar() {
   const { orders } = useStore();
+  const readable = useReadableColor();
   const [month, setMonth] = useState(9); // 0-indexed: October 2026
-  const [view, setView] = useState<'calendar' | 'list'>('calendar');
+  // A 7-column month grid is unreadable on a phone, so start in list view there.
+  const [view, setView] = useState<'calendar' | 'list'>(() => {
+    try {
+      return window.matchMedia('(max-width: 640px)').matches ? 'list' : 'calendar';
+    } catch {
+      return 'calendar';
+    }
+  });
   const year = 2026;
 
   const events = useMemo(
@@ -137,7 +148,7 @@ export function HarvestCalendar() {
                             key={e.id}
                             to={e.orderId ? `/orders/${e.orderId}` : '/harvest'}
                             className="block truncate rounded px-1 py-0.5 text-[10px] font-medium transition hover:brightness-95"
-                            style={{ background: `${p.color}1a`, color: p.color }}
+                            style={{ background: `${p.color}26`, color: readable(p.color) }}
                             title={`${p.name} · ${e.qty.toLocaleString()} ${e.unit} · ${farmName(e.farmId)}`}
                           >
                             {p.emoji} {e.qty.toLocaleString()}
@@ -156,7 +167,7 @@ export function HarvestCalendar() {
             </div>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="min-w-0 overflow-x-auto">
             {events.length === 0 ? (
               <EmptyState icon={<CalendarDays size={26} />} title="No harvests scheduled this month" />
             ) : (
@@ -182,7 +193,10 @@ export function HarvestCalendar() {
                           <td className="text-xs font-semibold tabular-nums">{formatDate(e.date, 'day')}</td>
                           <td className="text-xs">{farmName(e.farmId)}</td>
                           <td className="text-xs">
-                            {p.emoji} {p.name}
+                            <span className="inline-flex items-center gap-2">
+                              <Avatar src={productPhoto(e.productId, 48, 48)} alt={p.name} size={22} tint={p.color} fallback={p.emoji} />
+                              {p.name}
+                            </span>
                           </td>
                           <td className="text-end text-xs font-semibold tabular-nums">
                             {e.qty.toLocaleString()} {e.unit}
@@ -196,7 +210,7 @@ export function HarvestCalendar() {
                                 {order.ref}
                               </Link>
                             ) : (
-                              <span className="text-2xs text-charcoal-300">—</span>
+                              <span className="text-2xs text-charcoal-300">, </span>
                             )}
                           </td>
                           <td>
@@ -225,9 +239,10 @@ export function HarvestCalendar() {
               <span
                 key={pid}
                 className="inline-flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-semibold"
-                style={{ background: `${p.color}14`, color: p.color }}
+                style={{ background: `${p.color}24`, color: readable(p.color) }}
               >
-                {p.emoji} {p.name}
+                <Avatar src={productPhoto(pid, 48, 48)} alt={p.name} size={20} tint={p.color} fallback={p.emoji} />
+                {p.name}
                 <span className="font-mono text-2xs opacity-70">{volume.toLocaleString()}</span>
               </span>
             );

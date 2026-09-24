@@ -9,9 +9,21 @@
     <meta name="theme-color" content="#2a714c" />
     <meta
       name="description"
-      content="SooqRoot — The Procurement Operating System for UAE Local Food. One Order. Many Farms. Confirmed Before Harvest."
+      content="SooqRoot. The Procurement Operating System for UAE Local Food. One Order. Many Farms. Confirmed Before Harvest."
     />
-    <title>SooqRoot — Procurement Operating System</title>
+    <script>
+      // Apply the saved theme before first paint so there is no light-to-dark flash.
+      (function () {
+        try {
+          var pref = JSON.parse(localStorage.getItem('sooqroot:v2:theme') || '"light"');
+          var dark = pref === 'dark' || (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          var root = document.documentElement;
+          if (dark) root.classList.add('dark');
+          root.style.colorScheme = dark ? 'dark' : 'light';
+        } catch (e) {}
+      })();
+    </script>
+    <title>SooqRoot. Procurement Operating System</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

@@ -7,6 +7,7 @@ import {
   Farm,
   Order,
   Theme,
+  ThemePreference,
 } from '../types';
 import { BUYERS } from '../data/buyers';
 import { DEMANDS } from '../data/demand';
@@ -39,7 +40,11 @@ interface AppStore {
   signOut: () => void;
 
   /* preferences */
+  /** The theme currently rendered, after resolving 'system'. */
   theme: Theme;
+  themePreference: ThemePreference;
+  setThemePreference: (t: ThemePreference) => void;
+  /** Flip to the opposite of what is currently rendered. */
   toggleTheme: () => void;
   sidebarCollapsed: boolean;
   toggleSidebar: () => void;
@@ -77,7 +82,18 @@ const NEXT_STATUS: Record<Order['status'], Order['status']> = {
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<DemoSession | null>(() => loadSession<DemoSession | null>(null));
-  const [theme, setTheme] = useState<Theme>(() => loadItem<Theme>('theme', 'light'));
+  const [themePreference, setThemePreference] = useState<ThemePreference>(() =>
+    loadItem<ThemePreference>('theme', 'light')
+  );
+  const [systemDark, setSystemDark] = useState<boolean>(() => {
+    try {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    } catch {
+      return false;
+    }
+  });
+  const theme: Theme =
+    themePreference === 'system' ? (systemDark ? 'dark' : 'light') : themePreference;
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => loadItem<boolean>('sidebar', false));
 
   const [orders, setOrders] = useState<Order[]>(() => loadItem<Order[]>('orders', ORDERS));
@@ -89,7 +105,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     loadItem<ActivityEvent[]>('activity', ACTIVITY)
   );
 
-  useEffect(() => saveItem('theme', theme), [theme]);
+  useEffect(() => saveItem('theme', themePreference), [themePreference]);
+
+  // Follow the operating system while the preference is 'system'.
+  useEffect(() => {
+    let mq: MediaQueryList;
+    try {
+      mq = window.matchMedia('(prefers-color-scheme: dark)');
+    } catch {
+      return;
+    }
+    const onChange = (e: MediaQueryListEvent) => setSystemDark(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
   useEffect(() => saveItem('sidebar', sidebarCollapsed), [sidebarCollapsed]);
   useEffect(() => saveItem('orders', orders), [orders]);
   useEffect(() => saveItem('demands', demands), [demands]);
@@ -97,7 +126,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => saveItem('activity', activity), [activity]);
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark');
+    const root = document.documentElement;
+    root.classList.toggle('dark', theme === 'dark');
+    root.style.colorScheme = theme;
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', theme === 'dark' ? '#0a0c0d' : '#2a714c');
   }, [theme]);
 
   const signIn = useCallback((username: string, password: string) => {
@@ -120,7 +154,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     clearSession();
   }, []);
 
-  const toggleTheme = useCallback(() => setTheme((t) => (t === 'light' ? 'dark' : 'light')), []);
+  const toggleTheme = useCallback(
+    () => setThemePreference(theme === 'dark' ? 'light' : 'dark'),
+    [theme]
+  );
   const toggleSidebar = useCallback(() => setSidebarCollapsed((c) => !c), []);
 
   const pushActivity = useCallback((event: Omit<ActivityEvent, 'id' | 'at'>) => {
@@ -183,7 +220,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setDemands(DEMANDS);
     setExceptions(EXCEPTIONS);
     setActivity(ACTIVITY);
-    setTheme('light');
+    setThemePreference('light');
     setSidebarCollapsed(false);
   }, []);
 
@@ -195,6 +232,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       signIn,
       signOut,
       theme,
+      themePreference,
+      setThemePreference,
       toggleTheme,
       sidebarCollapsed,
       toggleSidebar,
@@ -219,6 +258,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       signIn,
       signOut,
       theme,
+      themePreference,
       toggleTheme,
       sidebarCollapsed,
       toggleSidebar,

@@ -67,7 +67,7 @@ export function Exceptions() {
       <PageHeader
         eyebrow="Operations"
         title="Exceptions"
-        subtitle="Everything standing between a commitment and a delivered order — with the recommended intervention for each."
+        subtitle="Everything standing between a commitment and a delivered order, with the recommended intervention for each."
         actions={
           <>
             <Badge tone={openCount > 0 ? 'rose' : 'emerald'} icon={<TriangleAlert size={12} />}>

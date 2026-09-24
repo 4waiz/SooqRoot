@@ -19,7 +19,7 @@ BUYER DEMAND → SOOQROOT → FARM NETWORK → PRE-HARVEST COMMITMENT → FULFIL
 
 There is **no database and no backend**. Everything runs in the browser against a typed,
 centrally maintained demo dataset under `src/data/`. Every farm, buyer, volume, price and
-impact figure is illustrative and was authored for demonstration — a **Demo Data** indicator
+impact figure is illustrative and was authored for demonstration, a **Demo Data** indicator
 is visible throughout the interface, and Settings has a **Reset demo data** control.
 
 Sign-in is a demo gate, not a secure authentication service.
@@ -60,7 +60,7 @@ npm run preview  # serve the production build
 | Supply Network | Farms / Farm profile | Capacity, harvest windows, grade probability, fulfilment history, certifications |
 | | Supply Digital Twin | Live model of what the network can deliver and which demand it already carries |
 | | Harvest Calendar | Every scheduled field operation behind the live commitments |
-| Operations | Exceptions | Shortfalls, capacity, quality, logistics and weather — each with a recommended action |
+| Operations | Exceptions | Shortfalls, capacity, quality, logistics and weather, each with a recommended action |
 | | Fulfilment | Harvest → grading → packing → collection → consolidation → delivery |
 | | Batch Passports | Auditable per-batch proof of origin, custody and impact |
 | Intelligence | Local Procurement Index | The measured local share of buyer spend against target |
@@ -75,7 +75,7 @@ npm run preview  # serve the production build
 
 ## The commitment engine
 
-`src/lib/engine.ts` is the core of the product and is **fully deterministic** — the same
+`src/lib/engine.ts` is the core of the product and is **fully deterministic**, the same
 inputs always produce the same commitment pack, with no randomness anywhere in the
 allocation path.
 
@@ -93,14 +93,14 @@ For a given order it scores every harvest window in the network on seven weighte
 
 It then allocates under four explicit rules:
 
-- **Freshness gate** — a harvest window closing more than one product shelf life before the
+- **Freshness gate**, a harvest window closing more than one product shelf life before the
   delivery date cannot serve the order at all.
-- **Primary gate** — a farm whose window closes after the delivery date, or whose grade
+- **Primary gate**, a farm whose window closes after the delivery date, or whose grade
   probability is under 60%, is held as backup cover rather than primary supply.
-- **Concentration limit (23%)** — no single farm carries more than 23% of one order, but
+- **Concentration limit (23%)**, no single farm carries more than 23% of one order, but
   never less than an even split across the eligible pool, so the cap can never cause an
   under-fill.
-- **Backup cover limit (5%)** — no single backup farm stands behind more than 5% of an
+- **Backup cover limit (5%)**, no single backup farm stands behind more than 5% of an
   order. Backup cover is contingent and does not consume network capacity.
 
 The demo order book in `src/data/orders.ts` is built by running this engine against a

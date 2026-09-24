@@ -32,7 +32,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
       })),
       ...orders.map((o) => ({
         id: o.id,
-        label: `${o.ref} — ${getProduct(o.productId).name}`,
+        label: `${o.ref}, ${getProduct(o.productId).name}`,
         sub: `${buyerName(o.buyerId)} · ${o.qty.toLocaleString()} ${o.unit} · ${o.status}`,
         group: 'Orders',
         to: `/orders/${o.id}`,
