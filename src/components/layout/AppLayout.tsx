@@ -304,7 +304,7 @@ export function AppLayout() {
         <footer className="border-t border-charcoal-100 px-4 py-5 pb-24 dark:border-charcoal-800 md:px-6 lg:pb-5">
           <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-2 text-2xs text-charcoal-400 md:flex-row md:items-center md:justify-between">
             <span>
-              SooqRoot. The Procurement Operating System for UAE Local Food · One Order. Many Farms.
+              SooqRoot, The Procurement Operating System for UAE Local Food · One Order. Many Farms.
               Confirmed Before Harvest.
             </span>
             <span className="flex items-center gap-3">

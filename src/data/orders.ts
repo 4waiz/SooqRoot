@@ -4,7 +4,7 @@ import { FARMS } from './farms';
 import { getProduct } from './products';
 
 /* ============================================================
-   DEMO ORDER BOOK. October 2026 procurement window.
+   DEMO ORDER BOOK, October 2026 procurement window.
    Allocations are produced by the real commitment engine at
    module load, so the numbers on screen are always consistent
    with the algorithm rather than typed in by hand.
@@ -62,7 +62,7 @@ const SEEDS: OrderSeed[] = [
     status: 'Committed',
     confidence: 94,
     health: 'healthy',
-    deliveryLocation: 'Al Ain. Central Kitchen',
+    deliveryLocation: 'Al Ain, Central Kitchen',
     committedOverride: 8400,
   },
   {
@@ -78,7 +78,7 @@ const SEEDS: OrderSeed[] = [
     status: 'Committed',
     confidence: 77,
     health: 'attention',
-    deliveryLocation: 'Abu Dhabi. Mussafah DC',
+    deliveryLocation: 'Abu Dhabi, Mussafah DC',
     committedOverride: 3100,
   },
   {
@@ -94,7 +94,7 @@ const SEEDS: OrderSeed[] = [
     status: 'At risk',
     confidence: 52,
     health: 'risk',
-    deliveryLocation: 'Dubai. Al Quoz DC',
+    deliveryLocation: 'Dubai, Al Quoz DC',
     committedOverride: 800,
   },
   {
@@ -110,7 +110,7 @@ const SEEDS: OrderSeed[] = [
     status: 'Harvest scheduled',
     confidence: 88,
     health: 'healthy',
-    deliveryLocation: 'Abu Dhabi. Corniche',
+    deliveryLocation: 'Abu Dhabi, Corniche',
   },
   {
     ref: 'SR-2605',
@@ -125,7 +125,7 @@ const SEEDS: OrderSeed[] = [
     status: 'Committed',
     confidence: 91,
     health: 'attention',
-    deliveryLocation: 'Dubai. The Sustainable City',
+    deliveryLocation: 'Dubai, The Sustainable City',
   },
   {
     ref: 'SR-2606',
@@ -140,7 +140,7 @@ const SEEDS: OrderSeed[] = [
     status: 'Committed',
     confidence: 89,
     health: 'healthy',
-    deliveryLocation: 'Dubai. Al Quoz DC',
+    deliveryLocation: 'Dubai, Al Quoz DC',
   },
   {
     ref: 'SR-2607',
@@ -155,7 +155,7 @@ const SEEDS: OrderSeed[] = [
     status: 'In fulfilment',
     confidence: 95,
     health: 'healthy',
-    deliveryLocation: 'Abu Dhabi. Corniche',
+    deliveryLocation: 'Abu Dhabi, Corniche',
   },
   {
     ref: 'SR-2608',
@@ -170,7 +170,7 @@ const SEEDS: OrderSeed[] = [
     status: 'At risk',
     confidence: 61,
     health: 'risk',
-    deliveryLocation: 'Abu Dhabi. Mussafah DC',
+    deliveryLocation: 'Abu Dhabi, Mussafah DC',
   },
   {
     ref: 'SR-2609',
@@ -186,7 +186,7 @@ const SEEDS: OrderSeed[] = [
     confidence: 96,
     deliveredQty: 3600,
     health: 'healthy',
-    deliveryLocation: 'Al Ain. Central Kitchen',
+    deliveryLocation: 'Al Ain, Central Kitchen',
   },
   {
     ref: 'SR-2610',
@@ -201,7 +201,7 @@ const SEEDS: OrderSeed[] = [
     status: 'Demand received',
     confidence: 92,
     health: 'healthy',
-    deliveryLocation: 'Abu Dhabi. Mussafah DC',
+    deliveryLocation: 'Abu Dhabi, Mussafah DC',
   },
   {
     ref: 'SR-2611',
@@ -217,7 +217,7 @@ const SEEDS: OrderSeed[] = [
     confidence: 97,
     deliveredQty: 180,
     health: 'healthy',
-    deliveryLocation: 'Dubai. The Sustainable City',
+    deliveryLocation: 'Dubai, The Sustainable City',
   },
   {
     ref: 'SR-2612',
@@ -233,7 +233,7 @@ const SEEDS: OrderSeed[] = [
     confidence: 93,
     deliveredQty: 1455,
     health: 'attention',
-    deliveryLocation: 'Dubai. Al Quoz DC',
+    deliveryLocation: 'Dubai, Al Quoz DC',
   },
   {
     ref: 'SR-2613',
@@ -248,7 +248,7 @@ const SEEDS: OrderSeed[] = [
     status: 'Committed',
     confidence: 90,
     health: 'healthy',
-    deliveryLocation: 'Al Ain. Central Kitchen',
+    deliveryLocation: 'Al Ain, Central Kitchen',
   },
   {
     ref: 'SR-2614',
@@ -263,7 +263,7 @@ const SEEDS: OrderSeed[] = [
     status: 'Committed',
     confidence: 79,
     health: 'attention',
-    deliveryLocation: 'Dubai. Al Quoz DC',
+    deliveryLocation: 'Dubai, Al Quoz DC',
   },
   {
     ref: 'SR-2615',
@@ -278,7 +278,7 @@ const SEEDS: OrderSeed[] = [
     status: 'Committed',
     confidence: 86,
     health: 'healthy',
-    deliveryLocation: 'Abu Dhabi. Corniche',
+    deliveryLocation: 'Abu Dhabi, Corniche',
   },
   {
     ref: 'SR-2616',
@@ -293,7 +293,7 @@ const SEEDS: OrderSeed[] = [
     status: 'Demand received',
     confidence: 74,
     health: 'attention',
-    deliveryLocation: 'Dubai. Al Quoz DC',
+    deliveryLocation: 'Dubai, Al Quoz DC',
     committedOverride: 700,
   },
 ];
@@ -403,7 +403,7 @@ export const CYCLES: ProcurementCycle[] = [
   {
     id: 'cycle-oct-2026',
     ref: 'CY-2610',
-    name: 'October 2026. Main Window',
+    name: 'October 2026, Main Window',
     window: '1-31 October 2026',
     opensOn: '2026-09-01',
     closesOn: '2026-10-31',
@@ -418,7 +418,7 @@ export const CYCLES: ProcurementCycle[] = [
   {
     id: 'cycle-sep-2026',
     ref: 'CY-2609',
-    name: 'September 2026. Closing',
+    name: 'September 2026, Closing',
     window: '1-30 September 2026',
     opensOn: '2026-08-01',
     closesOn: '2026-09-30',
@@ -433,7 +433,7 @@ export const CYCLES: ProcurementCycle[] = [
   {
     id: 'cycle-nov-2026',
     ref: 'CY-2611',
-    name: 'November 2026. Opening',
+    name: 'November 2026, Opening',
     window: '1-30 November 2026',
     opensOn: '2026-10-01',
     closesOn: '2026-11-30',

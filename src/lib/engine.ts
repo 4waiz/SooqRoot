@@ -9,9 +9,9 @@ import { getProduct } from '../data/products';
    scores every farm in the network on eight weighted signals,
    then splits the order across farms under two risk rules:
 
-     • CONCENTRATION_CAP, no single farm carries more than 23%
+     • CONCENTRATION_CAP. No single farm carries more than 23%
        of one order (supply-concentration risk).
-     • BACKUP_CAP, no single backup farm is asked to stand
+     • BACKUP_CAP. No single backup farm is asked to stand
        behind more than 5% of one order.
 
    The same inputs always produce the same output. There is no
@@ -235,7 +235,7 @@ export function runCommitmentEngine(req: EngineRequest, farms: Farm[] = FARMS): 
         ? `Harvest window closes ${new Date(line.harvestWindowEnd).toLocaleDateString('en-GB', {
             day: 'numeric',
             month: 'short',
-          })}, after the delivery date, so held as backup cover.`
+          })}. After the delivery date, so held as backup cover.`
         : gradeTooLow
           ? `Grade ${req.grade} probability below the 60% primary threshold, held as backup cover.`
           : `Harvest completes ${slackDays}d before delivery, inside the ${product.shelfLifeDays}-day freshness window.`;
@@ -248,7 +248,7 @@ export function runCommitmentEngine(req: EngineRequest, farms: Farm[] = FARMS): 
 
   const networkAvailable = candidates.reduce((s, c) => s + c.available, 0);
   trace.push(
-    `Scanned ${farms.length} farms, ${candidates.length} harvest windows carry ${product.name} inside the ${product.shelfLifeDays}-day freshness window (${networkAvailable.toLocaleString()} ${req.unit} available).`
+    `Scanned ${farms.length} farms. ${candidates.length} harvest windows carry ${product.name} inside the ${product.shelfLifeDays}-day freshness window (${networkAvailable.toLocaleString()} ${req.unit} available).`
   );
 
   const primaryPool = candidates.filter((c) => c.eligibility === 'primary');

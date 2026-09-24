@@ -191,7 +191,7 @@ export function QualityCheck() {
     const farm = farms.find((f) => f.id === farmId);
     pushActivity({
       kind: 'exception',
-      title: `Quality check logged. Grade ${result.grade} on ${product.name}`,
+      title: `Quality check logged, Grade ${result.grade} on ${product.name}`,
       detail: `${batchRef} · score ${result.score}/100 · ${farm?.name ?? 'farm'} · simulated grading`,
       actor: 'Awaiz Ahmed',
     });

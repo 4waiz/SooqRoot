@@ -124,7 +124,7 @@ export function CommitmentEngine() {
       <PageHeader
         eyebrow="Procurement"
         title="Commitment Engine"
-        subtitle="Deterministic pre-harvest allocation. One buyer order is split across the farm network under explicit supply-risk rules, the same inputs always produce the same commitment pack."
+        subtitle="Deterministic pre-harvest allocation. One buyer order is split across the farm network under explicit supply-risk rules. The same inputs always produce the same commitment pack."
         actions={
           <>
             {phase !== 'idle' ? (
@@ -454,7 +454,7 @@ export function CommitmentEngine() {
               <RuleRow
                 title="Backup cover limit"
                 value={`${Math.round(BACKUP_CAP * 100)}%`}
-                body="Backup farms stand behind at most this share each. Backup cover is contingent, it does not consume network capacity."
+                body="Backup farms stand behind at most this share each. Backup cover is contingent. It does not consume network capacity."
               />
               <RuleRow
                 title="Freshness gate"

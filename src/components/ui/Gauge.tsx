@@ -3,7 +3,7 @@ import { CountUp, useSettle } from './Motion';
 import { useChartColors } from '../../lib/theme';
 
 /* ============================================================
-   TargetGauge, a semicircle that shows a value against a
+   TargetGauge. A semicircle that shows a value against a
    target honestly: the arc is drawn on a real 0 → max scale,
    the shortfall to target is shaded amber, and a second marker
    can show a leading indicator (e.g. this month's run-rate).

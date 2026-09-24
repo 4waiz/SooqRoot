@@ -191,7 +191,7 @@ export function gradeFromStats(stats: ImageStats, productId: string): QualityRes
       key: 'uniformity',
       label: 'Colour uniformity',
       score: Math.round(uniformity),
-      detail: `Hue spread ${stats.stdH.toFixed(1)}° across the sample, lower means a more consistent pack.`,
+      detail: `Hue spread ${stats.stdH.toFixed(1)}° across the sample. Lower means a more consistent pack.`,
     },
     {
       key: 'saturation',
@@ -230,7 +230,7 @@ export function gradeFromStats(stats: ImageStats, productId: string): QualityRes
   if (uniformity < 65) defects.push('Mixed ripeness across the sample, consider re-sorting');
   if (colourMatch < 60) defects.push(`Colour outside the ${target.name} band for ${product.name.toLowerCase()}`);
   if (surface < 60) defects.push('Uneven surface or shadowing on the skin');
-  if (imageQuality < 55) defects.push('Photo quality is low, re-shoot in even light for a firmer read');
+  if (imageQuality < 55) defects.push('Photo quality is low. Re-shoot in even light for a firmer read');
 
   const shelfLifeDays = Math.max(
     1,

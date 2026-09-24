@@ -47,7 +47,7 @@ export function LocalProcurementIndex() {
       <PageHeader
         eyebrow="Intelligence"
         title="Local Procurement Index"
-        subtitle="The single number that tells a commercial buyer how much of their food spend genuinely comes from UAE farms, measured, not estimated."
+        subtitle="The single number that tells a commercial buyer how much of their food spend genuinely comes from UAE farms: measured, not estimated."
         actions={
           <Badge tone="brand" icon={<Activity size={12} />}>
             Trailing 12 months
@@ -87,7 +87,7 @@ export function LocalProcurementIndex() {
           <p className="mt-4 max-w-xs px-4 text-center text-2xs leading-relaxed text-charcoal-400">
             The current month is running at{' '}
             <span className="font-bold text-brand-600 dark:text-brand-300">{metrics.localProcurementPct}%</span>{' '}
-, above target. Holding that rate closes the trailing gap in roughly two quarters.
+. Above target. Holding that rate closes the trailing gap in roughly two quarters.
           </p>
         </Card>
 
@@ -238,7 +238,7 @@ export function LocalProcurementIndex() {
           <div className="mt-2 rounded-xl bg-canvas-soft p-3.5 dark:bg-charcoal-950">
             <p className="text-2xs leading-relaxed text-charcoal-500 dark:text-charcoal-400">
               Dates and honey are already majority-local. Fish and vegetables carry the largest
-              addressable gap, and the largest volume, so they drive most of the index movement.
+              addressable gap and the largest volume, so they drive most of the index movement.
             </p>
             <Link to="/analytics" className="sr-btn-secondary mt-3 !py-1.5 text-2xs">
               Open analytics <ArrowRight size={12} />

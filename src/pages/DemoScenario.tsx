@@ -40,7 +40,7 @@ const STORY = [
     to: '/engine',
     icon: Cpu,
     title: 'Commitment Engine',
-    line: 'Run the 10,000 kg tomato order. It splits across five farms at 9,200 kg with 800 kg of backup cover, 100% coverage before anything is harvested.',
+    line: 'Run the 10,000 kg tomato order. It splits across five farms at 9,200 kg with 800 kg of backup cover. 100% coverage before anything is harvested.',
     say: '“No single farm carries more than 23% of an order. That is the difference between a marketplace and infrastructure.”',
   },
   {
@@ -48,7 +48,7 @@ const STORY = [
     to: '/network',
     icon: Sprout,
     title: 'Supply Digital Twin',
-    line: 'Show the network canvas, where the farms are, what they can actually deliver, and which buyer demand they already carry.',
+    line: 'Show the network canvas. Where the farms are, what they can actually deliver, and which buyer demand they already carry.',
     say: '“Twelve farms across Al Ain, Al Khazna, Sweihan, Remah and Liwa, publishing forward capacity.”',
   },
   {
@@ -93,7 +93,7 @@ export function DemoScenario() {
       <PageHeader
         eyebrow="System"
         title="Demo Scenario"
-        subtitle="An eight-step run through the product, in the order that tells the strongest story. Every screen is live, nothing here is a slide."
+        subtitle="An eight-step run through the product, in the order that tells the strongest story. Every screen is live. Nothing here is a slide."
         actions={
           <>
             <Badge tone="sand" icon={<Info size={12} />}>

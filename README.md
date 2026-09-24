@@ -95,9 +95,9 @@ It then allocates under four explicit rules:
 
 - **Freshness gate**, a harvest window closing more than one product shelf life before the
   delivery date cannot serve the order at all.
-- **Primary gate**, a farm whose window closes after the delivery date, or whose grade
+- **Primary gate**. A farm whose window closes after the delivery date, or whose grade
   probability is under 60%, is held as backup cover rather than primary supply.
-- **Concentration limit (23%)**, no single farm carries more than 23% of one order, but
+- **Concentration limit (23%)**. No single farm carries more than 23% of one order, but
   never less than an even split across the eligible pool, so the cap can never cause an
   under-fill.
 - **Backup cover limit (5%)**, no single backup farm stands behind more than 5% of an

@@ -126,7 +126,7 @@ export function Login() {
 
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-2xs text-white/70">
             <span className="inline-flex items-center gap-1.5">
-              <CheckCircle2 size={13} /> 2nd Place. Universities Hackathon: Farm to Market
+              <CheckCircle2 size={13} /> 2nd Place, Universities Hackathon: Farm to Market
             </span>
             <span>Al Ain · Abu Dhabi · Dubai</span>
           </div>

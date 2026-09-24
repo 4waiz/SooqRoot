@@ -2,7 +2,7 @@ import { useStore } from '../state/AppStore';
 
 /* ============================================================
    Theme-aware colour helpers for places Tailwind classes can't
-   reach. Recharts props, SVG fills and data-driven accents.
+   reach, Recharts props, SVG fills and data-driven accents.
    ============================================================ */
 
 export interface ChartColors {

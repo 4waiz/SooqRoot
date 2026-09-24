@@ -45,16 +45,16 @@ const PACKAGING_OPTIONS = [
 const FREQUENCIES: DemandLine['frequency'][] = ['One-off', 'Weekly', 'Twice weekly', 'Daily'];
 
 const LOCATIONS = [
-  'Al Ain. Central Kitchen',
-  'Abu Dhabi. Mussafah DC',
-  'Abu Dhabi. Corniche',
-  'Dubai. Al Quoz DC',
-  'Dubai. The Sustainable City',
+  'Al Ain, Central Kitchen',
+  'Abu Dhabi, Mussafah DC',
+  'Abu Dhabi, Corniche',
+  'Dubai, Al Quoz DC',
+  'Dubai, The Sustainable City',
 ];
 
 const ORIGINS = [
   'UAE only',
-  'UAE. Al Ain Region preferred',
+  'UAE, Al Ain Region preferred',
   'UAE preferred, GCC acceptable',
   'UAE only, sub-100km preferred',
 ];

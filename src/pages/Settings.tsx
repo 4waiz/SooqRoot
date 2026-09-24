@@ -233,7 +233,7 @@ export function Settings() {
       >
         <p className="text-sm leading-relaxed text-charcoal-600 dark:text-charcoal-300">
           Anything created during this session, new demand records, issued commitment packs, resolved
-          exceptions, sent Copilot messages, will be discarded and the dataset returned to its
+          exceptions, sent Copilot messages. Will be discarded and the dataset returned to its
           opening state. Your sign-in stays active.
         </p>
       </Modal>

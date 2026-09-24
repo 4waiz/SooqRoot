@@ -145,7 +145,7 @@ export function OrderDetail() {
         </div>
         {order.status === 'At risk' ? (
           <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-medium text-rose-700 dark:border-rose-900 dark:bg-rose-900/30 dark:text-rose-200">
-            This order is flagged at risk, commitment coverage is {coverage}% against a{' '}
+            This order is flagged at risk. Commitment coverage is {coverage}% against a{' '}
             {formatDate(order.requiredBy, 'long')} delivery date.{' '}
             <Link to="/exceptions" className="font-bold underline">
               Review exceptions
