@@ -11,7 +11,7 @@ intelligently coordinates fulfilment, and gives buyers auditable proof of local 
 BUYER DEMAND → SOOQROOT → FARM NETWORK → PRE-HARVEST COMMITMENT → FULFILMENT → PROOF
 ```
 
-2nd place, Universities Hackathon: Farm to Market.
+2nd place, Universities Hackathon: Farm to Market. 
 
 ---
 
